@@ -1,0 +1,8 @@
+Flask
+requests
+requests-oauthlib
+python-dotenv
+Flask-SQLAlchemy
+pandas
+openpyxl
+gunicorn
