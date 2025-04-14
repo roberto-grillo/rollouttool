@@ -2,9 +2,9 @@ import os
 from flask import Flask, redirect, request, session, url_for, render_template, send_from_directory
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from datetime import datetime
+from models import db, Attivita  # importa db e modello
 
 # Carica variabili da .env (in sviluppo)
 load_dotenv()
@@ -17,12 +17,8 @@ app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Inizializza SQLAlchemy
-db = SQLAlchemy()
+# Inizializza il db con l'app Flask
 db.init_app(app)
-
-# Importa i modelli DOPO init_app
-from models import Attivita
 
 # Cartella per le immagini
 UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
@@ -38,8 +34,6 @@ AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
 TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
 SCOPE = ["openid", "email", "profile", "User.Read"]
-
-
 
 @app.route("/")
 def index():
@@ -171,9 +165,9 @@ def mappa():
 
     return render_template("mappa.html", attivita_json=attivita_json)
 
+# Inizializza il database al primo avvio
 with app.app_context():
     db.create_all()
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)
