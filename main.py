@@ -82,7 +82,9 @@ def logout():
 
 @app.before_first_request
 def crea_db():
-    db.create_all()
+    with app.app_context():
+        db.create_all()
+
 
 
 @app.route("/attivita")
