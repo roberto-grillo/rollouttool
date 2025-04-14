@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista Attività</title>
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .top-links {
+      margin-bottom: 20px;
+    }
+
+    .top-links a {
+      display: inline-block;
+      margin: 0 10px;
+      padding: 8px 16px;
+      background-color: #2c3e50;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .top-links a:hover {
+      background-color: #1a252f;
+    }
+
+    .metrics {
+      display: flex;
+      justify-content: flex-start;
+      gap: 40px;
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+
+    .metric-box {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .metric-box h2 {
+      margin: 0;
+      font-size: 32px;
+      color: #2c3e50;
+    }
+
+    .metric-box p {
+      margin: 4px 0 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .grafico-container {
+      width: 100%;
+      min-width: 800px;
+      max-width: 1200px;
+      height: 400px;
+      margin: 20px auto;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    #grafico {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      min-width: 90%;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #2c3e50;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+
+    .status-icon {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .ok    { color: green; }
+    .nok   { color: red; }
+    .other { color: orange; }
+
+    .icon-button {
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lista Attività Tecniche</h1>
+
+  <div class="top-links">
+    <a href="/mappa">🌍 Visualizza la mappa</a>
+  </div>
+
+  <div class="metrics">
+    <div class="metric-box">
+      <h2 id="volume-totale">0</h2>
+      <p>Volumi</p>
+    </div>
+    <div class="metric-box">
+      <h2 id="completamento">0%</h2>
+      <p>Completamento</p>
+    </div>
+  </div>
+
+  <div class="grafico-container">
+    <canvas id="grafico"></canvas>
+  </div>
+
+  <table id="tabella-attivita">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Data inserimento</th>
+        <th>NAMING BIANCHI</th>
+        <th>NAMING GRIGI</th>
+        <th>AREA</th>
+        <th>Regione</th>
+        <th>Provincia</th>
+        <th>Comune</th>
+        <th>Tipologia</th>
+        <th>Data Collaudo</th>
+        <th>Esito</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set data_grafico = {} %}
+      {% set ok_count = 0 %}
+      {% for att in attivita %}
+        {% set key = att.data_collaudo_srb.strftime('%Y-%m-%d') if att.data_collaudo_srb else '' %}
+        {% if key %}
+          {% set _ = data_grafico.setdefault(key, {'OK': 0, 'NOK': 0, 'ALTRO': 0}) %}
+          {% if att.esito_collaudo == 'OK' %}
+            {% set _ = data_grafico[key].update({'OK': data_grafico[key]['OK'] + 1}) %}
+            {% set ok_count = ok_count + 1 %}
+          {% elif att.esito_collaudo == 'NOK' %}
+            {% set _ = data_grafico[key].update({'NOK': data_grafico[key]['NOK'] + 1}) %}
+          {% else %}
+            {% set _ = data_grafico[key].update({'ALTRO': data_grafico[key]['ALTRO'] + 1}) %}
+          {% endif %}
+        {% endif %}
+        <tr>
+          <td><a href="{{ url_for('dettaglio_attivita', attivita_id=att.id) }}">{{ att.id }}</a></td>
+          <td>{{ att.data_inserimento.strftime('%Y-%m-%d %H:%M') if att.data_inserimento else '' }}</td>
+          <td>{{ att.naming_bianchi }}</td>
+          <td>{{ att.naming_grigi }}</td>
+          <td>{{ att.area }}</td>
+          <td>{{ att.regione }}</td>
+          <td>{{ att.provincia }}</td>
+          <td>{{ att.comune_geografico }}</td>
+          <td>{{ att.tipologia }}</td>
+          <td>{{ att.data_collaudo_srb or '' }}</td>
+          <td>
+            {% if att.esito_collaudo == 'OK' %}
+              <span class="status-icon ok">✅</span> OK
+            {% elif att.esito_collaudo == 'NOK' %}
+              <span class="status-icon nok">❌</span> NOK
+            {% else %}
+              <span class="status-icon other">⚠️</span> {{ att.esito_collaudo or '' }}
+            {% endif %}
+          </td>
+          <td>
+            <span class="icon-button" onclick="location.href='/attivita/{{ att.id }}/modifica'">✏️</span>
+            <span class="icon-button" onclick="if(confirm('Sei sicuro di voler cancellare questa attività?')) location.href='/attivita/{{ att.id }}/elimina'">🗑️</span>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- SCRIPTS NON MODIFICATI -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#tabella-attivita').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+        language: {
+          url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
+        }
+      });
+
+      const rawData = {{ data_grafico | tojson }};
+      const labels = Object.keys(rawData).sort();
+      const verde = labels.map(date => rawData[date].OK || 0);
+      const rosso = labels.map(date => rawData[date].NOK || 0);
+      const giallo = labels.map(date => rawData[date].ALTRO || 0);
+
+      const totale = verde.reduce((a, b) => a + b, 0) + rosso.reduce((a, b) => a + b, 0) + giallo.reduce((a, b) => a + b, 0);
+      const completamento = totale ? Math.round((verde.reduce((a,b)=>a+b,0)/totale)*100) : 0;
+      document.getElementById('volume-totale').innerText = totale;
+      document.getElementById('completamento').innerText = completamento + '%';
+
+      new Chart(document.getElementById('grafico'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'OK', data: verde, backgroundColor: 'green' },
+            { label: 'NOK', data: rosso, backgroundColor: 'red' },
+            { label: 'ALTRO', data: giallo, backgroundColor: 'orange' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Attività per Data di Collaudo' }
+          },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

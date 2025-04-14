@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Dettaglio attività</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+    }
+
+    .map-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .map-container {
+      width: 600px;
+      height: 600px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .upload-form {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .details-container {
+      flex-grow: 1;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 900px;
+      table-layout: fixed;
+    }
+
+    td.label {
+      font-weight: bold;
+      background-color: #f0f0f0;
+      white-space: nowrap;
+      width: 300px;
+    }
+
+    td.value {
+      width: 600px;
+      word-break: break-word;
+    }
+
+    td {
+      padding: 6px;
+      border: 1px solid #ccc;
+      vertical-align: top;
+    }
+
+    .ok {
+      background-color: #d4f4d2;
+    }
+
+    .nok {
+      background-color: #f6d4d4;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 280px);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .image-card {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 280px;
+      height: 280px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-card img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dettaglio attività #{{ attivita.id }}</h1>
+  <p><a href="/attivita">← Torna alla lista</a></p>
+
+  <div class="container">
+    <div class="map-column">
+      <div id="map" class="map-container"></div>
+
+      <div class="upload-form">
+        <h3>Carica foto</h3>
+        <form action="/attivita/{{ attivita.id }}/upload_foto" method="post" enctype="multipart/form-data">
+          <input type="file" name="foto" accept="image/*">
+          <button type="submit">Carica</button>
+        </form>
+
+        {% if immagini %}
+          <div class="image-grid">
+            {% for img in immagini %}
+              <div class="image-card">
+                <img src="{{ url_for('static', filename='uploads/' ~ attivita.id ~ '/' ~ img) }}" alt="Foto">
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="details-container">
+      <form method="POST" action="{{ url_for('modifica_attivita', attivita_id=attivita.id) }}">
+        <table>
+          {% for column in attivita.__table__.columns %}
+            {% set value = getattr(attivita, column.name) %}
+            <tr class="{% if column.name.startswith('esito') and value == 'OK' %}ok{% elif column.name.startswith('esito') and value == 'NOK' %}nok{% endif %}">
+              <td class="label">{{ column.name.replace('_', ' ').upper() }}</td>
+              <td class="value">
+                {% if column.name == 'id' %}
+                  {{ value }}
+                {% else %}
+                  <input type="text" name="{{ column.name }}" value="{{ value }}" style="width: 100%;">
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+        <button type="submit">💾 Salva modifiche</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const lat = {{ attivita.latitudine or 'null' }};
+    const lon = {{ attivita.longitudine or 'null' }};
+    if (lat && lon) {
+      const map = L.map('map').setView([lat, lon], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      L.circleMarker([lat, lon], { radius: 8, color: 'blue', fillColor: 'blue', fillOpacity: 0.6 }).addTo(map)
+        .bindPopup('Attività #{{ attivita.id }}').openPopup();
+    } else {
+      document.getElementById('map').innerHTML = '<p style="color:red;padding:10px;">Coordinate non disponibili</p>';
+    }
+  </script>
+</body>
+</html>

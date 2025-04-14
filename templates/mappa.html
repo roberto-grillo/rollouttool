@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Mappa attività</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { font-family: sans-serif; padding: 0; margin: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const attivita = {{ attivita_json | safe }};
+
+    const map = L.map('map').setView([42.5, 12.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    function getMarkerIcon(color) {
+      return new L.Icon({
+        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+    }
+
+    attivita.forEach(a => {
+      if (a.latitudine && a.longitudine) {
+        let colore = "yellow";  // default
+        if (a.esito === "OK") colore = "green";
+        else if (a.esito === "NOK") colore = "red";
+
+        const marker = L.marker([a.latitudine, a.longitudine], {
+          icon: getMarkerIcon(colore)
+        }).addTo(map);
+
+        marker.bindPopup(`<b>${a.naming_bianchi}</b><br>${a.regione} - ${a.tipologia}<br>Esito: <b>${a.esito || 'N/A'}</b>`);
+      }
+    });
+  </script>
+
+</body>
+</html>
