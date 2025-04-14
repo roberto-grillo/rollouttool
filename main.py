@@ -3,25 +3,31 @@ from flask import Flask, redirect, request, session, url_for, render_template, s
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Attivita
 from sqlalchemy import and_
+from datetime import datetime
 
+# Carica variabili da .env (in sviluppo)
 load_dotenv()
 
-# Evita problemi HTTPS in locale (da rimuovere in produzione)
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
+# Flask app
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
+
+# Configurazione database
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Inizializza SQLAlchemy
+db = SQLAlchemy()
+db.init_app(app)
+
+# Importa i modelli DOPO init_app
+from models import Attivita
 
 # Cartella per le immagini
 UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db.init_app(app)
 
 # Microsoft OAuth
 CLIENT_ID = os.getenv("CLIENT_ID")
@@ -33,6 +39,10 @@ AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
 TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
 SCOPE = ["openid", "email", "profile", "User.Read"]
 
+@app.before_first_request
+def crea_db():
+    with app.app_context():
+        db.create_all()
 
 @app.route("/")
 def index():
@@ -44,14 +54,12 @@ def index():
         """
     return "<a href='/login'>Login con Microsoft</a>"
 
-
 @app.route("/login")
 def login():
     oauth = OAuth2Session(CLIENT_ID, scope=SCOPE, redirect_uri=REDIRECT_URI)
     authorization_url, state = oauth.authorization_url(AUTH_URL)
     session["oauth_state"] = state
     return redirect(authorization_url)
-
 
 @app.route("/auth/callback")
 def callback():
@@ -73,25 +81,15 @@ def callback():
     }
     return redirect(url_for("index"))
 
-
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-
-@app.before_first_request
-def crea_db():
-    with app.app_context():
-        db.create_all()
-
-
-
 @app.route("/attivita")
 def elenco_attivita():
     attivita = Attivita.query.all()
     return render_template("attivita.html", attivita=attivita)
-
 
 @app.route("/attivita/<int:attivita_id>")
 def dettaglio_attivita(attivita_id):
@@ -107,10 +105,6 @@ def dettaglio_attivita(attivita_id):
                            attivita=attivita,
                            immagini=immagini,
                            getattr=getattr)
-
-
-from datetime import datetime
-
 
 @app.route("/attivita/<int:attivita_id>/modifica", methods=["POST"])
 def modifica_attivita(attivita_id):
@@ -132,10 +126,9 @@ def modifica_attivita(attivita_id):
                             parsed_date = datetime.strptime(
                                 nuovo_valore, "%Y-%m-%d")
                         except ValueError:
-                            parsed_date = None  # Se non parsabile, lascialo nullo
+                            parsed_date = None
                     setattr(attivita, nome_colonna, parsed_date)
-                elif str(column.type) in ("INTEGER", "Float", "REAL",
-                                          "NUMERIC"):
+                elif str(column.type) in ("INTEGER", "Float", "REAL", "NUMERIC"):
                     try:
                         setattr(attivita, nome_colonna, float(nuovo_valore))
                     except ValueError:
@@ -145,7 +138,6 @@ def modifica_attivita(attivita_id):
 
     db.session.commit()
     return redirect(url_for("dettaglio_attivita", attivita_id=attivita_id))
-
 
 @app.route("/attivita/<int:attivita_id>/upload_foto", methods=["POST"])
 def upload_foto(attivita_id):
@@ -157,14 +149,12 @@ def upload_foto(attivita_id):
         foto.save(filepath)
     return redirect(url_for('dettaglio_attivita', attivita_id=attivita_id))
 
-
 @app.route("/attivita/<int:attivita_id>/elimina")
 def elimina_attivita(attivita_id):
     attivita = Attivita.query.get_or_404(attivita_id)
     db.session.delete(attivita)
     db.session.commit()
     return redirect(url_for("elenco_attivita"))
-
 
 @app.route("/mappa")
 def mappa():
@@ -183,7 +173,6 @@ def mappa():
     } for a in attivita_con_coordinate]
 
     return render_template("mappa.html", attivita_json=attivita_json)
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)
