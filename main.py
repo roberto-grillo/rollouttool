@@ -1,31 +1,23 @@
 import os
-from flask import Flask, redirect, request, session, url_for, render_template, send_from_directory
+from flask import Flask, redirect, request, session, url_for, render_template
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
 from sqlalchemy import and_
 from datetime import datetime
-from models import db, Attivita  # importa db e modello
 
-# Carica variabili da .env (in sviluppo)
+from models import db, Attivita  # importa db centralizzato
+
 load_dotenv()
-
-# Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
-
-# Configurazione database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Inizializza il db con l'app Flask
 db.init_app(app)
 
-# Cartella per le immagini
-UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+with app.app_context():
+    db.create_all()
 
-# Microsoft OAuth
+# OAuth config (già corretta nel tuo codice)
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TENANT_ID = os.getenv("TENANT_ID")
@@ -35,14 +27,12 @@ AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
 TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
 SCOPE = ["openid", "email", "profile", "User.Read"]
 
+# Tutte le route (copiate dal tuo progetto)
+
 @app.route("/")
 def index():
     if "user" in session:
-        return f"""
-        <h3>Sei loggato come: {session['user']['name']} ({session['user']['email']})</h3>
-        <a href='/attivita'>Vai alla lista delle attività</a><br>
-        <a href='/logout'>Logout</a>
-        """
+        return f"<h3>Sei loggato come: {session['user']['name']} ({session['user']['email']})</h3><a href='/attivita'>Vai alla lista</a><br><a href='/logout'>Logout</a>"
     return "<a href='/login'>Login con Microsoft</a>"
 
 @app.route("/login")
@@ -54,17 +44,8 @@ def login():
 
 @app.route("/auth/callback")
 def callback():
-    oauth = OAuth2Session(CLIENT_ID,
-                          scope=SCOPE,
-                          redirect_uri=REDIRECT_URI,
-                          auto_refresh_url=TOKEN_URL)
-
-    token = oauth.fetch_token(
-        TOKEN_URL,
-        client_secret=CLIENT_SECRET,
-        authorization_response=request.url,
-    )
-
+    oauth = OAuth2Session(CLIENT_ID, scope=SCOPE, redirect_uri=REDIRECT_URI)
+    token = oauth.fetch_token(TOKEN_URL, client_secret=CLIENT_SECRET, authorization_response=request.url)
     userinfo = oauth.get("https://graph.microsoft.com/v1.0/me").json()
     session["user"] = {
         "name": userinfo.get("displayName", "Sconosciuto"),
@@ -81,6 +62,9 @@ def logout():
 def elenco_attivita():
     attivita = Attivita.query.all()
     return render_template("attivita.html", attivita=attivita)
+
+# ... tutte le altre route rimangono come nel tuo file attuale ...
+
 
 @app.route("/attivita/<int:attivita_id>")
 def dettaglio_attivita(attivita_id):
