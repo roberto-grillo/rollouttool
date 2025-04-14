@@ -39,10 +39,7 @@ AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
 TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
 SCOPE = ["openid", "email", "profile", "User.Read"]
 
-@app.before_first_request
-def crea_db():
-    with app.app_context():
-        db.create_all()
+
 
 @app.route("/")
 def index():
@@ -173,6 +170,10 @@ def mappa():
     } for a in attivita_con_coordinate]
 
     return render_template("mappa.html", attivita_json=attivita_json)
+
+with app.app_context():
+    db.create_all()
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)
