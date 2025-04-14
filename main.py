@@ -18,7 +18,7 @@ UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-app.secret_key = os.urandom(24)
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
