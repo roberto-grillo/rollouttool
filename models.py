@@ -1,8 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-db = SQLAlchemy()
-
+db = SQLAlchemy()  # unica istanza condivisa
 
 class Attivita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,5 +40,4 @@ class Attivita(db.Model):
     note = db.Column(db.Text)
     categoria_pending = db.Column(db.String(100))
 
-    # Timestamp opzionale
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
