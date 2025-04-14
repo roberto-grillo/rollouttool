@@ -1,1 +1,14 @@
+# Evita di caricare l'ambiente virtuale (se esistente)
+venv/
+__pycache__/
+*.pyc
+
+# Evita di caricare i file di configurazione locali
 .env
+
+# File di log o temporanei
+*.log
+instance/
+
+# File di backup
+*.bak
