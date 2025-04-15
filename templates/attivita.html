@@ -14,15 +14,8 @@
       padding: 20px;
       text-align: center;
     }
-
-    h1 {
-      color: #333;
-    }
-
-    .top-links {
-      margin-bottom: 20px;
-    }
-
+    h1 { color: #333; }
+    .top-links { margin-bottom: 20px; }
     .top-links a {
       display: inline-block;
       margin: 0 10px;
@@ -33,11 +26,7 @@
       text-decoration: none;
       font-weight: bold;
     }
-
-    .top-links a:hover {
-      background-color: #1a252f;
-    }
-
+    .top-links a:hover { background-color: #1a252f; }
     .metrics {
       display: flex;
       justify-content: flex-start;
@@ -45,7 +34,6 @@
       margin: 20px auto;
       max-width: 1200px;
     }
-
     .metric-box {
       background-color: #fff;
       border: 1px solid #ddd;
@@ -55,19 +43,8 @@
       text-align: center;
       min-width: 120px;
     }
-
-    .metric-box h2 {
-      margin: 0;
-      font-size: 32px;
-      color: #2c3e50;
-    }
-
-    .metric-box p {
-      margin: 4px 0 0;
-      color: #666;
-      font-size: 14px;
-    }
-
+    .metric-box h2 { margin: 0; font-size: 32px; color: #2c3e50; }
+    .metric-box p { margin: 4px 0 0; color: #666; font-size: 14px; }
     .grafico-container {
       width: 100%;
       min-width: 800px;
@@ -79,12 +56,7 @@
       border-radius: 8px;
       padding: 20px;
     }
-
-    #grafico {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
+    #grafico { width: 100% !important; height: 100% !important; }
     table {
       margin: 20px auto;
       border-collapse: collapse;
@@ -92,13 +64,11 @@
       background-color: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-
     th, td {
       padding: 10px 16px;
       text-align: left;
       border-bottom: 1px solid #ddd;
     }
-
     th {
       background-color: #2c3e50;
       color: white;
@@ -106,25 +76,12 @@
       font-size: 14px;
       text-transform: uppercase;
     }
-
-    tr:hover {
-      background-color: #f1f1f1;
-    }
-
-    a {
-      color: #2980b9;
-      text-decoration: none;
-    }
-
-    .status-icon {
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .ok    { color: green; }
-    .nok   { color: red; }
+    tr:hover { background-color: #f1f1f1; }
+    a { color: #2980b9; text-decoration: none; }
+    .status-icon { font-size: 16px; font-weight: bold; }
+    .ok { color: green; }
+    .nok { color: red; }
     .other { color: orange; }
-
     .icon-button {
       cursor: pointer;
       font-size: 16px;
@@ -133,10 +90,11 @@
   </style>
 </head>
 <body>
-  <h1>Lista Attività Tecniche</h1>
+  <h1>Lista Attività</h1>
 
   <div class="top-links">
-    <a href="/mappa">🌍 Visualizza la mappa</a>
+    <a href="/mappa">🗺️ Mappa</a>
+    <a href="/attivita/0">➕ Nuova attività</a>
   </div>
 
   <div class="metrics">
@@ -172,6 +130,7 @@
       </tr>
     </thead>
     <tbody>
+      <!-- qui resta invariato il codice dei dati -->
       {% set data_grafico = {} %}
       {% set ok_count = 0 %}
       {% for att in attivita %}
