@@ -15,7 +15,6 @@ UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
@@ -23,7 +22,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# OAuth config (già corretta nel tuo codice)
+# OAuth config
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TENANT_ID = os.getenv("TENANT_ID")
@@ -32,8 +31,6 @@ AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
 TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
 SCOPE = ["openid", "email", "profile", "User.Read"]
-
-# Tutte le route (copiate dal tuo progetto)
 
 @app.route("/")
 def index():
@@ -69,7 +66,10 @@ def elenco_attivita():
     attivita = Attivita.query.all()
     return render_template("attivita.html", attivita=attivita)
 
-
+@app.route("/attivita/0")
+def nuova_attivita():
+    attivita_vuota = Attivita()
+    return render_template("dettaglio_attivita.html", attivita=attivita_vuota, immagini=[], getattr=getattr)
 
 @app.route("/attivita/<int:attivita_id>")
 def dettaglio_attivita(attivita_id):
@@ -88,7 +88,7 @@ def dettaglio_attivita(attivita_id):
 
 @app.route("/attivita/<int:attivita_id>/modifica", methods=["POST"])
 def modifica_attivita(attivita_id):
-    attivita = Attivita.query.get_or_404(attivita_id)
+    attivita = Attivita() if attivita_id == 0 else Attivita.query.get_or_404(attivita_id)
 
     for column in attivita.__table__.columns:
         nome_colonna = column.name
@@ -125,11 +125,11 @@ def modifica_attivita(attivita_id):
                 else:
                     setattr(attivita, nome_colonna, nuovo_valore)
 
+    if attivita_id == 0:
+        db.session.add(attivita)
+
     db.session.commit()
-    return redirect(url_for("dettaglio_attivita", attivita_id=attivita_id))
-
-
-
+    return redirect(url_for("dettaglio_attivita", attivita_id=attivita.id))
 
 @app.route("/attivita/<int:attivita_id>/upload_foto", methods=["POST"])
 def upload_foto(attivita_id):
