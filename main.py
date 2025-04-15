@@ -3,7 +3,7 @@ from flask import Flask, redirect, request, session, url_for, render_template
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
 from sqlalchemy import and_
-from datetime import datetime
+from datetime import datetime, date
 
 from models import db, Attivita  # importa db centralizzato
 
@@ -101,15 +101,19 @@ def modifica_attivita(attivita_id):
             else:
                 if str(column.type) in ("DATETIME", "DateTime"):
                     try:
-                        parsed_date = datetime.strptime(
-                            nuovo_valore, "%Y-%m-%d %H:%M:%S")
+                        parsed_date = datetime.strptime(nuovo_valore, "%Y-%m-%d %H:%M:%S")
                     except ValueError:
                         try:
-                            parsed_date = datetime.strptime(
-                                nuovo_valore, "%Y-%m-%d")
+                            parsed_date = datetime.strptime(nuovo_valore, "%Y-%m-%d")
                         except ValueError:
                             parsed_date = None
                     setattr(attivita, nome_colonna, parsed_date)
+                elif str(column.type) in ("DATE", "Date"):
+                    try:
+                        parsed_date = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
+                        setattr(attivita, nome_colonna, parsed_date)
+                    except ValueError:
+                        setattr(attivita, nome_colonna, None)
                 elif str(column.type) in ("INTEGER", "Float", "REAL", "NUMERIC"):
                     try:
                         setattr(attivita, nome_colonna, float(nuovo_valore))
@@ -120,6 +124,7 @@ def modifica_attivita(attivita_id):
 
     db.session.commit()
     return redirect(url_for("dettaglio_attivita", attivita_id=attivita_id))
+
 
 @app.route("/attivita/<int:attivita_id>/upload_foto", methods=["POST"])
 def upload_foto(attivita_id):
