@@ -145,7 +145,7 @@
                 {% if column.name == 'id' %}
                   {{ value }}
                 {% else %}
-                  <input type="text" name="{{ column.name }}" value="{{ value }}" style="width: 100%;">
+                   <input type="{{ 'date' if column.type.python_type == date else 'text' }}" name="{{ column.name }}" value="{{ value.strftime('%Y-%m-%d') if value is not none and column.type.python_type == date else value }}" style="width: 100%;">
                 {% endif %}
               </td>
             </tr>
