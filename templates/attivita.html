@@ -16,17 +16,6 @@
     }
     h1 { color: #333; }
     .top-links { margin-bottom: 20px; }
-    .top-links a {
-      display: inline-block;
-      margin: 0 10px;
-      padding: 8px 16px;
-      background-color: #2c3e50;
-      color: white;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .top-links a:hover { background-color: #1a252f; }
     .metrics {
       display: flex;
       justify-content: flex-start;
@@ -92,11 +81,6 @@
 <body>
   <h1>Lista Attività</h1>
 
-  <div class="top-links">
-    <a href="/mappa">🗺️ Mappa</a>
-    <a href="/attivita/0">➕ Nuova attività</a>
-  </div>
-
   <div class="metrics">
     <div class="metric-box">
       <h2 id="volume-totale">0</h2>
@@ -130,7 +114,6 @@
       </tr>
     </thead>
     <tbody>
-      <!-- qui resta invariato il codice dei dati -->
       {% set data_grafico = {} %}
       {% set ok_count = 0 %}
       {% for att in attivita %}
@@ -187,9 +170,20 @@
 
   <script>
     $(document).ready(function () {
+      const customButtons = [
+        {
+          text: '🗺️ Mappa',
+          action: function () { window.location.href = '/mappa'; }
+        },
+        {
+          text: '➕ Nuova attività',
+          action: function () { window.location.href = '/attivita/0'; }
+        }
+      ];
+
       $('#tabella-attivita').DataTable({
         dom: 'Bfrtip',
-        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+        buttons: [...customButtons, 'copy', 'csv', 'excel', 'pdf', 'print'],
         language: {
           url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
         }
