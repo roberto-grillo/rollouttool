@@ -4,7 +4,6 @@ from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
 from sqlalchemy import and_, DateTime, Date, Integer, Float, Numeric, REAL
 from datetime import datetime, date
-
 from models import db, Attivita  # importa db centralizzato
 
 load_dotenv()
