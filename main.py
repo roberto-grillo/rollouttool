@@ -101,11 +101,10 @@ def modifica_attivita(attivita_id):
                 tipo = column.type
 
                 if isinstance(tipo, DateTime):
-                    try:
-                        valore = datetime.strptime(nuovo_valore, "%Y-%m-%d %H:%M:%S")
-                    except ValueError:
+                    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"):
                         try:
-                            valore = datetime.strptime(nuovo_valore, "%Y-%m-%d")
+                            valore = datetime.strptime(nuovo_valore, fmt)
+                            break
                         except ValueError:
                             valore = None
                     setattr(attivita, nome_colonna, valore)
@@ -128,6 +127,7 @@ def modifica_attivita(attivita_id):
 
     db.session.commit()
     return redirect(url_for("dettaglio_attivita", attivita_id=attivita_id))
+
 
 
 
