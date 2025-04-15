@@ -70,7 +70,6 @@ def elenco_attivita():
     attivita = Attivita.query.all()
     return render_template("attivita.html", attivita=attivita)
 
-# ... tutte le altre route rimangono come nel tuo file attuale ...
 
 
 @app.route("/attivita/<int:attivita_id>")
@@ -96,6 +95,11 @@ def modifica_attivita(attivita_id):
         nome_colonna = column.name
         if nome_colonna != "id" and nome_colonna in request.form:
             nuovo_valore = request.form[nome_colonna].strip()
+
+            # Se il form ha scritto "None" come stringa, trattalo come vuoto
+            if nuovo_valore.lower() == "none":
+                nuovo_valore = ""
+
             if nuovo_valore == "":
                 setattr(attivita, nome_colonna, None)
             else:
@@ -124,6 +128,7 @@ def modifica_attivita(attivita_id):
 
     db.session.commit()
     return redirect(url_for("dettaglio_attivita", attivita_id=attivita_id))
+
 
 
 @app.route("/attivita/<int:attivita_id>/upload_foto", methods=["POST"])
