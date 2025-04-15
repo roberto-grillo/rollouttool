@@ -2,7 +2,7 @@ import os
 from flask import Flask, redirect, request, session, url_for, render_template
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
-from sqlalchemy import and_
+from sqlalchemy import and_, DateTime, Date, Integer, Float, Numeric, REAL
 from datetime import datetime, date
 
 from models import db, Attivita  # importa db centralizzato
@@ -99,30 +99,31 @@ def modifica_attivita(attivita_id):
             if nuovo_valore == "":
                 setattr(attivita, nome_colonna, None)
             else:
-                tipo = str(column.type)
+                tipo = column.type
 
-                if tipo in ("DATETIME", "DateTime"):
+                if isinstance(tipo, DateTime):
                     try:
-                        valore_data = datetime.strptime(nuovo_valore, "%Y-%m-%d %H:%M:%S")
+                        valore = datetime.strptime(nuovo_valore, "%Y-%m-%d %H:%M:%S")
                     except ValueError:
                         try:
-                            valore_data = datetime.strptime(nuovo_valore, "%Y-%m-%d")
+                            valore = datetime.strptime(nuovo_valore, "%Y-%m-%d")
                         except ValueError:
-                            valore_data = None
-                    setattr(attivita, nome_colonna, valore_data)
+                            valore = None
+                    setattr(attivita, nome_colonna, valore)
 
-                elif tipo == "DATE" or tipo == "Date":
+                elif isinstance(tipo, Date):
                     try:
-                        valore_data = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
+                        valore = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
                     except ValueError:
-                        valore_data = None
-                    setattr(attivita, nome_colonna, valore_data)
+                        valore = None
+                    setattr(attivita, nome_colonna, valore)
 
-                elif tipo in ("INTEGER", "Float", "REAL", "NUMERIC"):
+                elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
                     try:
                         setattr(attivita, nome_colonna, float(nuovo_valore))
                     except ValueError:
                         setattr(attivita, nome_colonna, None)
+
                 else:
                     setattr(attivita, nome_colonna, nuovo_valore)
 
