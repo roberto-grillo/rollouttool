@@ -113,15 +113,18 @@
       gap: 5px;
       margin-bottom: 10px;
     }
+
+    .custom-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 5px;
+      margin-top: 10px;
+      margin-bottom: -10px;
+    }
   </style>
 </head>
 <body>
   <h1>Lista Attività</h1>
-
-  <div class="dt-buttons btn-group">
-    <a href="/mappa" class="dt-button">🗺️ Mappa</a>
-    <a href="/attivita/0" class="dt-button">➕ Nuova attività</a>
-  </div>
 
   <div class="metrics">
     <div class="metric-box">
@@ -136,6 +139,11 @@
 
   <div class="grafico-container">
     <canvas id="grafico"></canvas>
+  </div>
+
+  <div class="custom-buttons">
+    <a href="/mappa" class="dt-button">🗺️ Mappa</a>
+    <a href="/attivita/0" class="dt-button">➕ Nuova attività</a>
   </div>
 
   <table id="tabella-attivita">
