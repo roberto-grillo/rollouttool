@@ -118,6 +118,11 @@
 <body>
   <h1>Lista Attività</h1>
 
+  <form action="/importa_excel" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;">
+    <input type="file" name="file" accept=".xls,.xlsx">
+    <button type="submit">📤 Carica Excel</button>
+  </form>
+
   <div class="metrics">
     <div class="metric-box">
       <h2 id="volume-totale">0</h2>
@@ -209,9 +214,8 @@
       $('#tabella-attivita').DataTable({
         dom: 'Bfrtip',
         buttons: [
-          { text: '🗺️ Mappa', action: () => window.location.href='/mappa' },
+          { text: '📽️ Mappa', action: () => window.location.href='/mappa' },
           { text: '➕ Nuova attività', action: () => window.location.href='/attivita/0' },
-          { text: '📥 Import', action: () => window.location.href='/importa_excel' },
           'copy', 'csv', 'excel', 'pdf', 'print'
         ],
         language: {
