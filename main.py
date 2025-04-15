@@ -96,29 +96,29 @@ def modifica_attivita(attivita_id):
         if nome_colonna != "id" and nome_colonna in request.form:
             nuovo_valore = request.form[nome_colonna].strip()
 
-            # Se il form ha scritto "None" come stringa, trattalo come vuoto
-            if nuovo_valore.lower() == "none":
-                nuovo_valore = ""
-
             if nuovo_valore == "":
                 setattr(attivita, nome_colonna, None)
             else:
-                if str(column.type) in ("DATETIME", "DateTime"):
+                tipo = str(column.type)
+
+                if tipo in ("DATETIME", "DateTime"):
                     try:
-                        parsed_date = datetime.strptime(nuovo_valore, "%Y-%m-%d %H:%M:%S")
+                        valore_data = datetime.strptime(nuovo_valore, "%Y-%m-%d %H:%M:%S")
                     except ValueError:
                         try:
-                            parsed_date = datetime.strptime(nuovo_valore, "%Y-%m-%d")
+                            valore_data = datetime.strptime(nuovo_valore, "%Y-%m-%d")
                         except ValueError:
-                            parsed_date = None
-                    setattr(attivita, nome_colonna, parsed_date)
-                elif str(column.type) in ("DATE", "Date"):
+                            valore_data = None
+                    setattr(attivita, nome_colonna, valore_data)
+
+                elif tipo == "DATE" or tipo == "Date":
                     try:
-                        parsed_date = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
-                        setattr(attivita, nome_colonna, parsed_date)
+                        valore_data = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
                     except ValueError:
-                        setattr(attivita, nome_colonna, None)
-                elif str(column.type) in ("INTEGER", "Float", "REAL", "NUMERIC"):
+                        valore_data = None
+                    setattr(attivita, nome_colonna, valore_data)
+
+                elif tipo in ("INTEGER", "Float", "REAL", "NUMERIC"):
                     try:
                         setattr(attivita, nome_colonna, float(nuovo_valore))
                     except ValueError:
