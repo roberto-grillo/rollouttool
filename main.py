@@ -22,8 +22,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# OAuth config
-CLIENT_ID = os.getenv("CLIENT_ID")
+# OAuth config\CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TENANT_ID = os.getenv("TENANT_ID")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
@@ -69,6 +68,7 @@ def elenco_attivita():
 @app.route("/attivita/0")
 def nuova_attivita():
     attivita_vuota = Attivita()
+    attivita_vuota.id = 0
     return render_template("dettaglio_attivita.html", attivita=attivita_vuota, immagini=[], getattr=getattr)
 
 @app.route("/attivita/<int:attivita_id>")
