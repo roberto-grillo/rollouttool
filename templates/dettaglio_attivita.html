@@ -11,99 +11,42 @@
       padding: 20px;
       background-color: #f9f9f9;
     }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: row;
-      gap: 20px;
-    }
-
-    .map-column {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
+    h1 { margin-bottom: 10px; }
+    .container { display: flex; flex-direction: row; gap: 20px; }
+    .map-column { display: flex; flex-direction: column; gap: 20px; }
     .map-container {
-      width: 600px;
-      height: 600px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      width: 600px; height: 600px;
+      border: 1px solid #ccc; border-radius: 8px;
     }
-
     .upload-form {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background-color: #fff; border: 1px solid #ccc; border-radius: 8px;
+      padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-
-    .details-container {
-      flex-grow: 1;
-    }
-
+    .details-container { flex-grow: 1; }
     table {
-      border-collapse: collapse;
-      width: 900px;
-      table-layout: fixed;
+      border-collapse: collapse; width: 900px; table-layout: fixed;
     }
-
     td.label {
-      font-weight: bold;
-      background-color: #f0f0f0;
-      white-space: nowrap;
-      width: 300px;
+      font-weight: bold; background-color: #f0f0f0; white-space: nowrap; width: 300px;
     }
-
-    td.value {
-      width: 600px;
-      word-break: break-word;
-    }
-
-    td {
-      padding: 6px;
-      border: 1px solid #ccc;
-      vertical-align: top;
-    }
-
-    .ok {
-      background-color: #d4f4d2;
-    }
-
-    .nok {
-      background-color: #f6d4d4;
-    }
-
+    td.value { width: 600px; word-break: break-word; }
+    td { padding: 6px; border: 1px solid #ccc; vertical-align: top; }
+    .ok { background-color: #d4f4d2; }
+    .nok { background-color: #f6d4d4; }
     .image-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 280px);
-      gap: 10px;
-      margin-top: 10px;
+      display: grid; grid-template-columns: repeat(2, 280px);
+      gap: 10px; margin-top: 10px;
     }
-
     .image-card {
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      overflow: hidden;
-      background-color: white;
+      border: 1px solid #ccc; border-radius: 6px;
+      overflow: hidden; background-color: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      width: 280px;
-      height: 280px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 280px; height: 280px;
+      display: flex; justify-content: center; align-items: center;
     }
-
     .image-card img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      display: block;
+      max-width: 100%; max-height: 100%;
+      object-fit: contain; display: block;
     }
   </style>
 </head>
@@ -144,8 +87,10 @@
               <td class="value">
                 {% if column.name == 'id' %}
                   {{ value }}
+                {% elif 'date' in column.name and value %}
+                  <input type="date" name="{{ column.name }}" value="{{ value.strftime('%Y-%m-%d') }}" style="width: 100%;">
                 {% else %}
-                   <input type="{{ 'date' if column.type.python_type == date else 'text' }}" name="{{ column.name }}" value="{{ value.strftime('%Y-%m-%d') if value is not none and column.type.python_type == date else value }}" style="width: 100%;">
+                  <input type="text" name="{{ column.name }}" value="{{ value }}" style="width: 100%;">
                 {% endif %}
               </td>
             </tr>
