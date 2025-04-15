@@ -109,17 +109,16 @@
 
     .dt-buttons {
       display: flex;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 5px;
       margin-bottom: 10px;
     }
 
     .custom-buttons {
       display: flex;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 5px;
-      margin-top: 10px;
-      margin-bottom: -10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -139,11 +138,6 @@
 
   <div class="grafico-container">
     <canvas id="grafico"></canvas>
-  </div>
-
-  <div class="custom-buttons">
-    <a href="/mappa" class="dt-button">🗺️ Mappa</a>
-    <a href="/attivita/0" class="dt-button">➕ Nuova attività</a>
   </div>
 
   <table id="tabella-attivita">
@@ -208,6 +202,11 @@
     </tbody>
   </table>
 
+  <div class="custom-buttons">
+    <a href="/mappa" class="dt-button">🗺️ Mappa</a>
+    <a href="/attivita/0" class="dt-button">➕ Nuova attività</a>
+  </div>
+
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -221,7 +220,11 @@
     $(document).ready(function () {
       $('#tabella-attivita').DataTable({
         dom: 'Bfrtip',
-        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+        buttons: [
+          { text: '🗺️ Mappa', action: () => window.location.href='/mappa' },
+          { text: '➕ Nuova attività', action: () => window.location.href='/attivita/0' },
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ],
         language: {
           url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
         }
