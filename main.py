@@ -104,17 +104,17 @@ def modifica_attivita(attivita_id):
                     for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"):
                         try:
                             valore = datetime.strptime(nuovo_valore, fmt)
+                            setattr(attivita, nome_colonna, valore)
                             break
                         except ValueError:
-                            valore = None
-                    setattr(attivita, nome_colonna, valore)
+                            continue
 
                 elif isinstance(tipo, Date):
                     try:
                         valore = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
+                        setattr(attivita, nome_colonna, valore)
                     except ValueError:
-                        valore = None
-                    setattr(attivita, nome_colonna, valore)
+                        pass
 
                 elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
                     try:
