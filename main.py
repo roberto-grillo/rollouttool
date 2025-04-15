@@ -10,6 +10,13 @@ from models import db, Attivita  # importa db centralizzato
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
+
+# Cartella per le immagini
+UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
