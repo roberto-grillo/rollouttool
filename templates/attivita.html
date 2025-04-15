@@ -106,12 +106,19 @@
       font-size: 16px;
       margin-left: 8px;
     }
+
+    .dt-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Lista Attività</h1>
 
-  <div style="margin-bottom: 10px; text-align: right;">
+  <div class="dt-buttons btn-group">
     <a href="/mappa" class="dt-button">🗺️ Mappa</a>
     <a href="/attivita/0" class="dt-button">➕ Nuova attività</a>
   </div>
