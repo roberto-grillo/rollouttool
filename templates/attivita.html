@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Lista Attività</title>
-  <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -107,16 +106,35 @@
       margin-left: 8px;
     }
 
-    .import-form-container {
-      display: inline-flex;
+    .button-bar {
+      display: flex;
+      justify-content: flex-start;
       align-items: center;
-      gap: 5px;
-      margin-left: 10px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .button-bar button, .button-bar input[type="file"] {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f4f4f4;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h1>Lista Attività</h1>
+
+  <div class="button-bar">
+    <button onclick="window.location.href='/mappa'">📽️ Mappa</button>
+    <button onclick="window.location.href='/attivita/0'">➕ Nuova attività</button>
+    <form id="upload-form" action="/importa_excel" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".xls,.xlsx">
+      <button type="submit">📤 Carica Excel</button>
+    </form>
+  </div>
 
   <div class="metrics">
     <div class="metric-box">
@@ -206,27 +224,6 @@
 
   <script>
     $(document).ready(function () {
-      const importForm = `
-        <form id="upload-form" action="/importa_excel" method="post" enctype="multipart/form-data" class="import-form-container">
-          <input type="file" name="file" accept=".xls,.xlsx">
-          <button type="submit">📤 Carica Excel</button>
-        </form>
-      `;
-
-      const table = $('#tabella-attivita').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-          { text: '📽️ Mappa', action: () => window.location.href='/mappa' },
-          { text: '➕ Nuova attività', action: () => window.location.href='/attivita/0' },
-          'copy', 'csv', 'excel', 'pdf', 'print'
-        ],
-        language: {
-          url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
-        }
-      });
-
-      $(importForm).appendTo('.dt-buttons');
-
       const rawData = {{ data_grafico | tojson }};
       const labels = Object.keys(rawData).sort();
       const verde = labels.map(date => rawData[date].OK || 0);
