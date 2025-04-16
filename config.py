@@ -13,7 +13,9 @@ class Config:
     REDIRECT_URI = os.getenv("REDIRECT_URI")
     SCOPE = ["openid", "email", "profile", "User.Read"]
 
-AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
-AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
-TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
+    AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
+    AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
+    TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
 
+    MAX_UPLOAD_SIZE_MB = 1
+    ENABLE_CHANGE_HISTORY = True
