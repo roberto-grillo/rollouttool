@@ -170,6 +170,15 @@ def importa_excel():
         flash("Nessun file selezionato.")
         return redirect(url_for("elenco_attivita"))
 
+    # ⛔ Verifica la dimensione del file in MB
+    file.seek(0, os.SEEK_END)
+    file_length_mb = file.tell() / (1024 * 1024)
+    file.seek(0)
+    if file_length_mb > app.config["MAX_UPLOAD_SIZE_MB"]:
+        flash(f"Il file supera il limite di {app.config['MAX_UPLOAD_SIZE_MB']} MB.")
+        return redirect(url_for("elenco_attivita"))
+    
+    
     try:
         df = pd.read_excel(file)
 
