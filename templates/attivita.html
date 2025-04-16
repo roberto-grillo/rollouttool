@@ -115,16 +115,29 @@
       cursor: pointer;
     }
 
-    #upload-form {
-      display: inline-flex;
-      align-items: center;
+    .button-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
       gap: 5px;
-      margin-left: 10px;
+      margin-bottom: 10px;
+    }
+
+    #upload-form input[type="file"] {
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <h1>Lista Attività</h1>
+  <div class="button-bar">
+    <button class="custom-button" onclick="window.location.href='/mappa'">📽️ Mappa</button>
+    <button class="custom-button" onclick="window.location.href='/attivita/0'">➕ Nuova attività</button>
+    <form id="upload-form" action="/importa_excel" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".xls,.xlsx">
+      <button type="submit" class="custom-button">📤 Carica Excel</button>
+    </form>
+  </div>
 
   <table id="tabella-attivita">
     <thead>
@@ -144,7 +157,21 @@
       </tr>
     </thead>
     <tbody>
+      {% set data_grafico = {} %}
+      {% set ok_count = 0 %}
       {% for att in attivita %}
+        {% set key = att.data_collaudo_srb.strftime('%Y-%m-%d') if att.data_collaudo_srb else '' %}
+        {% if key %}
+          {% set _ = data_grafico.setdefault(key, {'OK': 0, 'NOK': 0, 'ALTRO': 0}) %}
+          {% if att.esito_collaudo == 'OK' %}
+            {% set _ = data_grafico[key].update({'OK': data_grafico[key]['OK'] + 1}) %}
+            {% set ok_count = ok_count + 1 %}
+          {% elif att.esito_collaudo == 'NOK' %}
+            {% set _ = data_grafico[key].update({'NOK': data_grafico[key]['NOK'] + 1}) %}
+          {% else %}
+            {% set _ = data_grafico[key].update({'ALTRO': data_grafico[key]['ALTRO'] + 1}) %}
+          {% endif %}
+        {% endif %}
         <tr>
           <td><a href="{{ url_for('dettaglio_attivita', attivita_id=att.id) }}">{{ att.id }}</a></td>
           <td>{{ att.data_inserimento.strftime('%Y-%m-%d %H:%M:%S') if att.data_inserimento else '' }}</td>
@@ -197,52 +224,24 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 
   <script>
     $(document).ready(function () {
       const table = $('#tabella-attivita').DataTable({
         dom: 'Bfrtip',
         buttons: [
-          {
-            text: '📽️ Mappa',
-            className: 'custom-button',
-            action: () => window.location.href='/mappa'
-          },
-          {
-            text: '➕ Nuova attività',
-            className: 'custom-button',
-            action: () => window.location.href='/attivita/0'
-          },
-          {
-            extend: 'copy',
-            className: 'custom-button'
-          },
-          {
-            extend: 'csv',
-            className: 'custom-button'
-          },
-          {
-            extend: 'excel',
-            className: 'custom-button'
-          },
-          {
-            extend: 'pdf',
-            className: 'custom-button'
-          },
-          {
-            extend: 'print',
-            className: 'custom-button'
-          }
+          { extend: 'copy', className: 'custom-button' },
+          { extend: 'csv', className: 'custom-button' },
+          { extend: 'excel', className: 'custom-button' },
+          { extend: 'pdf', className: 'custom-button' },
+          { extend: 'print', className: 'custom-button' }
         ],
         language: {
           url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
         }
       });
 
-      $(table.buttons().container()).appendTo('.button-bar');
-
-      const rawData = {{ data_grafico | tojson }};
+      const rawData = {{ data_grafico | tojson | default('{}', true) }};
       const labels = Object.keys(rawData).sort();
       const verde = labels.map(date => rawData[date].OK || 0);
       const rosso = labels.map(date => rawData[date].NOK || 0);
