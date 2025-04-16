@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from flask import Flask, redirect, request, session, url_for, render_template
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
@@ -169,6 +170,46 @@ def mappa():
 # Inizializza il database al primo avvio
 with app.app_context():
     db.create_all()
+
+
+
+
+
+
+@app.route("/importa_excel", methods=["POST"])
+def importa_excel():
+    file = request.files.get("file")
+    if not file:
+        flash("Nessun file selezionato.")
+        return redirect(url_for("elenco_attivita"))
+
+    try:
+        df = pd.read_excel(file)
+        for _, row in df.iterrows():
+            attivita = Attivita()
+            for col in row.index:
+                if hasattr(attivita, col):
+                    value = row[col]
+                    if pd.isna(value):
+                        setattr(attivita, col, None)
+                    elif isinstance(getattr(Attivita, col).property.columns[0].type, DateTime):
+                        setattr(attivita, col, pd.to_datetime(value).to_pydatetime())
+                    elif isinstance(getattr(Attivita, col).property.columns[0].type, Date):
+                        setattr(attivita, col, pd.to_datetime(value).date())
+                    else:
+                        setattr(attivita, col, value)
+            db.session.add(attivita)
+        db.session.commit()
+        flash("Importazione completata con successo.")
+    except Exception as e:
+        flash(f"Errore durante l'importazione: {e}")
+
+    return redirect(url_for("elenco_attivita"))
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)
