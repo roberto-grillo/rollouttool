@@ -130,6 +130,23 @@
 </head>
 <body>
   <h1>Lista Attività</h1>
+
+  <div class="metrics">
+    <div class="metric-box">
+      <h2 id="volume-totale">0</h2>
+      <p>Volumi</p>
+    </div>
+    <div class="metric-box">
+      <h2 id="completamento">0%</h2>
+      <p>Completamento</p>
+    </div>
+  </div>
+
+  <div class="grafico-container">
+    <canvas id="grafico"></canvas>
+  </div>
+
+  
   <div class="button-bar">
     <button class="custom-button" onclick="window.location.href='/mappa'">📽️ Mappa</button>
     <button class="custom-button" onclick="window.location.href='/attivita/0'">➕ Nuova attività</button>
