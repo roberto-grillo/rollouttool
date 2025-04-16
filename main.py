@@ -4,7 +4,6 @@ load_dotenv()
 import pandas as pd
 from flask import Flask, redirect, request, session, url_for, render_template, flash
 from requests_oauthlib import OAuth2Session
-from dotenv import load_dotenv
 from sqlalchemy import and_, DateTime, Date, Integer, Float, Numeric, REAL
 from datetime import datetime, date
 from models import db, Attivita  # importa db centralizzato
@@ -13,15 +12,7 @@ from config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
-# app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
-
-# Cartella per le immagini
-# UPLOAD_FOLDER = os.path.abspath(os.path.join('static', 'uploads'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attivita.db"
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 db.init_app(app)
 
 with app.app_context():
