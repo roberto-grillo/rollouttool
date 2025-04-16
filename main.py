@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from flask import Flask, redirect, request, session, url_for, render_template
+from flask import Flask, redirect, request, session, url_for, render_template, flash
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
 from sqlalchemy import and_, DateTime, Date, Integer, Float, Numeric, REAL
@@ -185,7 +185,7 @@ def importa_excel():
 
     try:
         df = pd.read_excel(file)
-        for _, row in df.iterrows():
+        for _, row in df[df['naming_bianchi'].notna()].iterrows():
             attivita = Attivita()
             for col in row.index:
                 if hasattr(attivita, col):
