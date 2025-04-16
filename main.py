@@ -184,27 +184,38 @@ def importa_excel():
 
     try:
         df = pd.read_excel(file)
-# Normalizza i nomi colonna
-df.columns = [c.strip().lower().replace(" ", "_") for c in df.columns]
 
-for _, row in df.iterrows():
-    if pd.isna(row.get("naming_bianchi")) or pd.isna(row.get("naming_grigi")):
-        continue  # ignora righe senza naming
+        # Normalizza i nomi delle colonne
+        df.columns = [c.strip().lower().replace(" ", "_") for c in df.columns]
+
+        for _, row in df.iterrows():
+            if pd.isna(row.get("naming_bianchi")) or pd.isna(row.get("naming_grigi")):
+                continue  # salta righe incomplete
 
             attivita = Attivita()
             attivita.data_inserimento = datetime.now()
-            for i, col_name in enumerate(df.columns):
+
+            for col_name in df.columns:
                 if hasattr(attivita, col_name):
                     value = row[col_name]
                     if pd.isna(value):
                         setattr(attivita, col_name, None)
-                    elif isinstance(getattr(Attivita, col_name).property.columns[0].type, DateTime):
-                        setattr(attivita, col_name, pd.to_datetime(value).to_pydatetime())
-                    elif isinstance(getattr(Attivita, col_name).property.columns[0].type, Date):
-                        setattr(attivita, col_name, pd.to_datetime(value).date())
                     else:
-                        setattr(attivita, col_name, value)
+                        tipo = getattr(Attivita, col_name).property.columns[0].type
+                        if isinstance(tipo, DateTime):
+                            setattr(attivita, col_name, pd.to_datetime(value).to_pydatetime())
+                        elif isinstance(tipo, Date):
+                            setattr(attivita, col_name, pd.to_datetime(value).date())
+                        elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
+                            try:
+                                setattr(attivita, col_name, float(value))
+                            except ValueError:
+                                setattr(attivita, col_name, None)
+                        else:
+                            setattr(attivita, col_name, str(value))
+
             db.session.add(attivita)
+
         db.session.commit()
         flash("Importazione completata con successo.")
     except Exception as e:
