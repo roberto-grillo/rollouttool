@@ -174,8 +174,6 @@ with app.app_context():
 
 
 
-
-
 @app.route("/importa_excel", methods=["POST"])
 def importa_excel():
     file = request.files.get("file")
@@ -185,19 +183,22 @@ def importa_excel():
 
     try:
         df = pd.read_excel(file)
-        for _, row in df[df['naming_bianchi'].notna()].iterrows():
+        for _, row in df.iterrows():
+            if pd.isna(row[0]) or pd.isna(row[1]):
+                continue  # ignora righe senza naming
             attivita = Attivita()
-            for col in row.index:
-                if hasattr(attivita, col):
-                    value = row[col]
+            attivita.data_inserimento = datetime.now()
+            for i, col_name in enumerate(df.columns):
+                if hasattr(attivita, col_name):
+                    value = row[col_name]
                     if pd.isna(value):
-                        setattr(attivita, col, None)
-                    elif isinstance(getattr(Attivita, col).property.columns[0].type, DateTime):
-                        setattr(attivita, col, pd.to_datetime(value).to_pydatetime())
-                    elif isinstance(getattr(Attivita, col).property.columns[0].type, Date):
-                        setattr(attivita, col, pd.to_datetime(value).date())
+                        setattr(attivita, col_name, None)
+                    elif isinstance(getattr(Attivita, col_name).property.columns[0].type, DateTime):
+                        setattr(attivita, col_name, pd.to_datetime(value).to_pydatetime())
+                    elif isinstance(getattr(Attivita, col_name).property.columns[0].type, Date):
+                        setattr(attivita, col_name, pd.to_datetime(value).date())
                     else:
-                        setattr(attivita, col, value)
+                        setattr(attivita, col_name, value)
             db.session.add(attivita)
         db.session.commit()
         flash("Importazione completata con successo.")
@@ -205,7 +206,6 @@ def importa_excel():
         flash(f"Errore durante l'importazione: {e}")
 
     return redirect(url_for("elenco_attivita"))
-
 
 
 
