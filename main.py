@@ -19,14 +19,7 @@ with app.app_context():
     db.create_all()
 
 # OAuth config\
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-TENANT_ID = os.getenv("TENANT_ID")
-REDIRECT_URI = os.getenv("REDIRECT_URI")
-AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
-AUTH_URL = f"{AUTHORITY}/oauth2/v2.0/authorize"
-TOKEN_URL = f"{AUTHORITY}/oauth2/v2.0/token"
-SCOPE = ["openid", "email", "profile", "User.Read"]
+oauth = OAuth2Session(Config.CLIENT_ID, scope=Config.SCOPE, redirect_uri=Config.REDIRECT_URI)
 
 @app.route("/")
 def index():
