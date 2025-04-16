@@ -184,9 +184,13 @@ def importa_excel():
 
     try:
         df = pd.read_excel(file)
-        for _, row in df.iterrows():
-            if pd.isna(row[0]) or pd.isna(row[1]):
-                continue  # ignora righe senza naming
+# Normalizza i nomi colonna
+df.columns = [c.strip().lower().replace(" ", "_") for c in df.columns]
+
+for _, row in df.iterrows():
+    if pd.isna(row.get("naming_bianchi")) or pd.isna(row.get("naming_grigi")):
+        continue  # ignora righe senza naming
+
             attivita = Attivita()
             attivita.data_inserimento = datetime.now()
             for i, col_name in enumerate(df.columns):
