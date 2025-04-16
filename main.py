@@ -23,7 +23,8 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# OAuth config\CLIENT_ID = os.getenv("CLIENT_ID")
+# OAuth config\
+CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TENANT_ID = os.getenv("TENANT_ID")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
