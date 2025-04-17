@@ -263,40 +263,51 @@
     document.getElementById('volume-totale').innerText = totale;
     document.getElementById('completamento').innerText = completamento + '%';
 
+    const canvas = document.getElementById('grafico');
     const ctx = document.getElementById('grafico').getContext('2d');
 
-    // Gradienti
-    const gradientVerde = ctx.createLinearGradient(0, 0, 0, 400);
-    gradientVerde.addColorStop(0, '#66bb6a'); // chiaro
-    gradientVerde.addColorStop(1, '#388e3c'); // scuro
 
-    const gradientRosso = ctx.createLinearGradient(0, 0, 0, 400);
-    gradientRosso.addColorStop(0, '#ef5350');
-    gradientRosso.addColorStop(1, '#c62828');
+    const gradientVerde = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradientVerde.addColorStop(0, '#81C784');
+    gradientVerde.addColorStop(1, '#4CAF50');
 
-    const gradientGiallo = ctx.createLinearGradient(0, 0, 0, 400);
-    gradientGiallo.addColorStop(0, '#ffca28');
-    gradientGiallo.addColorStop(1, '#f57f17');
+    const gradientRosso = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradientRosso.addColorStop(0, '#EF5350');
+    gradientRosso.addColorStop(1, '#E53935');
+
+    const gradientGiallo = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradientGiallo.addColorStop(0, '#FFF176');
+    gradientGiallo.addColorStop(1, '#FBC02D');
 
 
 Chart.register({
   id: 'glowEffect',
-  afterDatasetsDraw(chart, args, pluginOptions) {
+  afterDatasetsDraw(chart) {
     const ctx = chart.ctx;
     chart.data.datasets.forEach((dataset, datasetIndex) => {
       const meta = chart.getDatasetMeta(datasetIndex);
       if (!meta.hidden) {
+        ctx.save();
+
+        // Glow color statico basato sull'etichetta
+        const glowColor = {
+          'OK': '#4CAF50',
+          'NOK': '#E53935',
+          'ALTRO': '#FBC02D'
+        }[dataset.label] || 'rgba(0,0,0,0.2)';
+
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+
         meta.data.forEach(bar => {
           const { x, y, width, height } = bar;
-          ctx.save();
-          ctx.shadowColor = dataset.backgroundColor;
-          ctx.shadowBlur = 12;
-          ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 0;
-          ctx.fillStyle = dataset.backgroundColor;
+          ctx.fillStyle = glowColor;
           ctx.fillRect(x - width / 2, y, width, chart.chartArea.bottom - y);
-          ctx.restore();
         });
+
+        ctx.restore();
       }
     });
   }
@@ -311,11 +322,30 @@ Chart.register({
       type: 'bar',
       data: {
         labels: labels,
-        datasets: [
-          { label: 'OK', data: verde, backgroundColor: gradientVerde },
-          { label: 'NOK', data: rosso, backgroundColor: gradientRosso },
-          { label: 'ALTRO', data: giallo, backgroundColor: gradientGiallo }
-        ]
+datasets: [
+  {
+    label: 'OK',                                // Etichetta della barra
+    data: verde,                                // Dati OK
+    backgroundColor: gradientVerde,             // Gradiente di sfondo
+    borderColor: '#388E3C',                     // Bordo verde scuro
+    borderWidth: 2                              // Spessore bordo
+  },
+  {
+    label: 'NOK',                               // Etichetta della barra
+    data: rosso,                                // Dati NOK
+    backgroundColor: gradientRosso,             // Gradiente di sfondo
+    borderColor: '#B71C1C',                     // Bordo rosso scuro
+    borderWidth: 2                              // Spessore bordo
+  },
+  {
+    label: 'ALTRO',                             // Etichetta della barra
+    data: giallo,                               // Dati ALTRO
+    backgroundColor: gradientGiallo,            // Gradiente di sfondo
+    borderColor: '#F57F17',                     // Bordo giallo scuro
+    borderWidth: 2                              // Spessore bordo
+  }
+]
+
       },
       options: {
         responsive: true,
