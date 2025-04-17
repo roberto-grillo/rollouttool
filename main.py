@@ -14,7 +14,13 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # DEBUG: stampa il database in uso
-print("🔗 DATABASE URL in uso:", app.config["SQLALCHEMY_DATABASE_URI"])
+print("🔧 DEBUG - Configurazione attiva:")
+print("🔗 DATABASE URI:", app.config["SQLALCHEMY_DATABASE_URI"])
+print("📁 UPLOAD_FOLDER:", app.config["UPLOAD_FOLDER"])
+print("🔐 SECRET_KEY presente:", bool(app.config["SECRET_KEY"]))
+print("🌐 CLIENT_ID (OAuth):", app.config.get("CLIENT_ID", "non definito"))
+print("🔁 Ambiente:", os.getenv("FLASK_ENV", "production"))
+print("🖥️ Locale:", os.uname().nodename if hasattr(os, "uname") else "n/a")
 ##
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
