@@ -12,6 +12,11 @@ from config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# DEBUG: stampa il database in uso
+print("🔗 DATABASE URL in uso:", app.config["SQLALCHEMY_DATABASE_URI"])
+##
+
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db.init_app(app)
 
