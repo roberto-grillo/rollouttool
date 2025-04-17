@@ -78,48 +78,56 @@ def dettaglio_attivita(attivita_id):
 
 @app.route("/attivita/<int:attivita_id>/modifica", methods=["POST"])
 def modifica_attivita(attivita_id):
+    from models import StoricoModifiche  # importa solo se non lo hai già fatto
+
     attivita = Attivita() if attivita_id == 0 else Attivita.query.get_or_404(attivita_id)
+    is_nuova = attivita_id == 0
 
     for column in attivita.__table__.columns:
         nome_colonna = column.name
         if nome_colonna != "id" and nome_colonna in request.form:
             nuovo_valore = request.form[nome_colonna].strip()
+            valore_vecchio = getattr(attivita, nome_colonna)
 
             if nuovo_valore == "":
-                setattr(attivita, nome_colonna, None)
+                valore_nuovo = None
             else:
                 tipo = column.type
+                try:
+                    if isinstance(tipo, DateTime):
+                        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"):
+                            try:
+                                valore_nuovo = datetime.strptime(nuovo_valore, fmt)
+                                break
+                            except ValueError:
+                                continue
+                    elif isinstance(tipo, Date):
+                        valore_nuovo = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
+                    elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
+                        valore_nuovo = float(nuovo_valore)
+                    else:
+                        valore_nuovo = nuovo_valore
+                except Exception:
+                    valore_nuovo = None
 
-                if isinstance(tipo, DateTime):
-                    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"):
-                        try:
-                            valore = datetime.strptime(nuovo_valore, fmt)
-                            setattr(attivita, nome_colonna, valore)
-                            break
-                        except ValueError:
-                            continue
+            if not is_nuova and valore_nuovo != valore_vecchio:
+                storico = StoricoModifiche(
+                    attivita_id=attivita.id,
+                    campo=nome_colonna,
+                    valore_precedente=str(valore_vecchio),
+                    valore_nuovo=str(valore_nuovo),
+                    utente=session.get("user", {}).get("email", "ignoto")
+                )
+                db.session.add(storico)
 
-                elif isinstance(tipo, Date):
-                    try:
-                        valore = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
-                        setattr(attivita, nome_colonna, valore)
-                    except ValueError:
-                        pass
+            setattr(attivita, nome_colonna, valore_nuovo)
 
-                elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
-                    try:
-                        setattr(attivita, nome_colonna, float(nuovo_valore))
-                    except ValueError:
-                        setattr(attivita, nome_colonna, None)
-
-                else:
-                    setattr(attivita, nome_colonna, nuovo_valore)
-
-    if attivita_id == 0:
+    if is_nuova:
         db.session.add(attivita)
 
     db.session.commit()
     return redirect(url_for("dettaglio_attivita", attivita_id=attivita.id))
+
 
 @app.route("/attivita/<int:attivita_id>/upload_foto", methods=["POST"])
 def upload_foto(attivita_id):
