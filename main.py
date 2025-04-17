@@ -229,6 +229,15 @@ def importa_excel():
     return redirect(url_for("elenco_attivita"))
 
 
+@app.route("/storico/<int:attivita_id>")
+def storico_modifiche(attivita_id):
+    from models import StoricoModifiche  # se non è già importato in alto
+
+    modifiche = StoricoModifiche.query.filter_by(attivita_id=attivita_id).order_by(
+        StoricoModifiche.data_modifica.desc()
+    ).all()
+
+    return render_template("storico.html", modifiche=modifiche, attivita_id=attivita_id)
 
 
 
