@@ -10,7 +10,7 @@ def current_time_truncated():
 
 class Attivita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    data_inserimento = db.Column(db.DateTime, default=datetime.utcnow)
+    data_inserimento = db.Column(db.DateTime, default=current_time_truncated)
     naming_bianchi = db.Column(db.String(100), nullable=False)
     naming_grigi = db.Column(db.String(100), nullable=False)
     area = db.Column(db.String(50))
