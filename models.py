@@ -41,3 +41,17 @@ class Attivita(db.Model):
     categoria_pending = db.Column(db.String(100))
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+
+
+class StoricoModifiche(db.Model):
+    __tablename__ = 'storico_modifiche'
+
+    id = db.Column(db.Integer, primary_key=True)
+    attivita_id = db.Column(db.Integer, nullable=False)  # ID attività modificata
+    campo = db.Column(db.String(100), nullable=False)    # Nome del campo modificato
+    valore_precedente = db.Column(db.Text)               # Valore prima della modifica
+    valore_nuovo = db.Column(db.Text)                    # Valore dopo la modifica
+    data_modifica = db.Column(db.DateTime, default=datetime.utcnow)  # Quando è stata fatta
+    utente = db.Column(db.String(255))                   # Chi ha fatto la modifica (opzionale)
