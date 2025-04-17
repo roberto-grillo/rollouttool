@@ -260,6 +260,21 @@ def storico_modifiche(attivita_id):
 
     return render_template("storico.html", modifiche=modifiche, attivita_id=attivita_id)
 
+@app.route("/impostazioni")
+def impostazioni():
+    return render_template("impostazioni.html")
+
+@app.route("/reset_db", methods=["POST"])
+def reset_db():
+    from models import Attivita, StoricoModifiche
+    db.session.query(StoricoModifiche).delete()
+    db.session.query(Attivita).delete()
+    db.session.commit()
+    flash("Tutte le attività e lo storico modifiche sono stati eliminati.")
+    return redirect(url_for("elenco_attivita"))
+
+
+
 
 
 if __name__ == "__main__":
