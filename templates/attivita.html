@@ -208,7 +208,7 @@
         </tr>
       {% endfor %}
     </tbody>
-  </table>
+ </table>
 
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -223,6 +223,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     const table = $('#tabella-attivita').DataTable({
       dom: 'Bfrtip',
+      pageLength: 100,
       buttons: [
         { extend: 'copy', className: 'custom-button' },
         { extend: 'csv', className: 'custom-button' },
@@ -236,74 +237,78 @@
     const canvas = document.getElementById('grafico');
     const ctx = canvas.getContext('2d');
 
-    setTimeout(() => {
-      const h = canvas.clientHeight || 400;
-      const gradientVerde = ctx.createLinearGradient(0, 0, 0, h);
-      gradientVerde.addColorStop(0, '#81C784'); gradientVerde.addColorStop(1, '#4CAF50');
-      const gradientRosso = ctx.createLinearGradient(0, 0, 0, h);
-      gradientRosso.addColorStop(0, '#EF5350'); gradientRosso.addColorStop(1, '#E53935');
-      const gradientGiallo = ctx.createLinearGradient(0, 0, 0, h);
-      gradientGiallo.addColorStop(0, '#FFF176'); gradientGiallo.addColorStop(1, '#FBC02D');
+    const rawData = {{ data_grafico | tojson | default('{}', true) }};
+    const labels = Object.keys(rawData).sort();
+    const verde = labels.map(d => rawData[d].OK || 0);
+    const rosso = labels.map(d => rawData[d].NOK || 0);
+    const giallo = labels.map(d => rawData[d].ALTRO || 0);
 
-      Chart.register({
-        id: 'glowEffect',
-        afterDatasetsDraw(chart) {
-          const ctx = chart.ctx;
-          chart.data.datasets.forEach((dataset, i) => {
-            const meta = chart.getDatasetMeta(i);
-            if (!meta.hidden) {
-              ctx.save();
-              const glow = { 'OK': '#4CAF50', 'NOK': '#E53935', 'ALTRO': '#FBC02D' }[dataset.label] || 'rgba(0,0,0,0.2)';
-              ctx.shadowColor = glow;
-              ctx.shadowBlur = 10;
-              meta.data.forEach(bar => {
-                const { x, y, width } = bar;
-                ctx.fillStyle = glow;
-                ctx.fillRect(x - width / 2, y, width, chart.chartArea.bottom - y);
-              });
-              ctx.restore();
-            }
-          });
-        }
-      });
+    const h = canvas.height;
+    const gradientVerde = ctx.createLinearGradient(0, 0, 0, h);
+    gradientVerde.addColorStop(0, '#81C784'); gradientVerde.addColorStop(1, '#4CAF50');
+    const gradientRosso = ctx.createLinearGradient(0, 0, 0, h);
+    gradientRosso.addColorStop(0, '#EF5350'); gradientRosso.addColorStop(1, '#E53935');
+    const gradientGiallo = ctx.createLinearGradient(0, 0, 0, h);
+    gradientGiallo.addColorStop(0, '#FFF176'); gradientGiallo.addColorStop(1, '#FBC02D');
 
-      const rawData = {{ data_grafico | tojson | default('{}', true) }};
-      const labels = Object.keys(rawData).sort();
-      const verde = labels.map(d => rawData[d].OK || 0);
-      const rosso = labels.map(d => rawData[d].NOK || 0);
-      const giallo = labels.map(d => rawData[d].ALTRO || 0);
-
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: 'OK', data: verde, backgroundColor: gradientVerde, borderColor: '#388E3C', borderWidth: 2 },
-            { label: 'NOK', data: rosso, backgroundColor: gradientRosso, borderColor: '#B71C1C', borderWidth: 2 },
-            { label: 'ALTRO', data: giallo, backgroundColor: gradientGiallo, borderColor: '#F57F17', borderWidth: 2 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: { duration: 1000, easing: 'easeOutQuart' },
-          plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Attività per Data di Collaudo' },
-            tooltip: {
-              callbacks: {
-                label: ctx => `${ctx.dataset.label}: ${ctx.raw} attività`
-              }
-            }
-          },
-          scales: {
-            x: { stacked: true },
-            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+    Chart.register({
+      id: 'glowEffect',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          if (!meta.hidden) {
+            ctx.save();
+            const glow = { 'OK': '#4CAF50', 'NOK': '#E53935', 'ALTRO': '#FBC02D' }[dataset.label] || 'rgba(0,0,0,0.2)';
+            ctx.shadowColor = glow;
+            ctx.shadowBlur = 10;
+            meta.data.forEach(bar => {
+              const { x, y, width } = bar;
+              ctx.fillStyle = glow;
+              ctx.fillRect(x - width / 2, y, width, chart.chartArea.bottom - y);
+            });
+            ctx.restore();
           }
+        });
+      }
+    });
+
+    const totale = verde.reduce((a, b) => a + b, 0) + rosso.reduce((a, b) => a + b, 0) + giallo.reduce((a, b) => a + b, 0);
+    const completamento = totale ? Math.round((verde.reduce((a,b)=>a+b,0)/totale)*100) : 0;
+    document.getElementById('volume-totale').innerText = totale;
+    document.getElementById('completamento').innerText = completamento + '%';
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'OK', data: verde, backgroundColor: gradientVerde, borderColor: '#388E3C', borderWidth: 2 },
+          { label: 'NOK', data: rosso, backgroundColor: gradientRosso, borderColor: '#B71C1C', borderWidth: 2 },
+          { label: 'ALTRO', data: giallo, backgroundColor: gradientGiallo, borderColor: '#F57F17', borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1000, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: 'Attività per Data di Collaudo' },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${ctx.raw} attività`
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
         }
-      });
-    }, 100);
+      }
+    });
   });
   </script>
 </body>
 </html>
+
