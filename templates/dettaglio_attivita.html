@@ -30,7 +30,15 @@
 </head>
 <body>
   <h1>Dettaglio attività #{{ attivita.id }}</h1>
-  <p><a href="/attivita">← Torna alla lista</a></p>
+
+  <p>
+    <a href="/attivita">← Torna alla lista</a>
+    {% if attivita.id != 0 %}
+      | <a href="{{ url_for('storico_modifiche', attivita_id=attivita.id) }}">📜 Storico modifiche</a>
+    {% endif %}
+  </p>
+
+  
   <div class="container">
     <div class="map-column">
       <div id="map" class="map-container"></div>
