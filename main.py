@@ -82,6 +82,9 @@ def modifica_attivita(attivita_id):
 
     attivita = Attivita() if attivita_id == 0 else Attivita.query.get_or_404(attivita_id)
     is_nuova = attivita_id == 0
+    if is_nuova:
+        attivita.data_inserimento = datetime.now().replace(microsecond=0)
+
 
     for column in attivita.__table__.columns:
         nome_colonna = column.name
@@ -198,7 +201,7 @@ def importa_excel():
                 continue  # salta righe incomplete
 
             attivita = Attivita()
-            attivita.data_inserimento = datetime.now()
+            attivita.data_inserimento = datetime.now().replace(microsecond=0)
 
             for col_name in df.columns:
                 if hasattr(attivita, col_name):
