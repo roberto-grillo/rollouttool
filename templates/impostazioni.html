@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Impostazioni</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; }
+    .danger-box {
+      background-color: #fff3f3;
+      border: 2px solid #ff4c4c;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    .danger-box h2 { color: #cc0000; }
+    button {
+      background-color: #ff4c4c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+  <script>
+    function confermaReset() {
+      if (confirm("⚠ Sei sicuro di voler cancellare tutte le righe della tabella attività?")) {
+        if (confirm("❗ Questa azione eliminerà TUTTI I DATI dal database. Vuoi continuare?")) {
+          document.getElementById("form-reset").submit();
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>⚙️ Impostazioni</h1>
+  <p><a href="{{ url_for('elenco_attivita') }}">← Torna alla lista attività</a></p>
+
+  <div class="danger-box">
+    <h2>⚠️ Cancellazione totale del database</h2>
+    <p>Questa azione eliminerà tutte le righe della tabella <strong>attività</strong> e dello <strong>storico modifiche</strong>.</p>
+    <form id="form-reset" method="POST" action="{{ url_for('reset_db') }}">
+      <button type="button" onclick="confermaReset()">🗑️ Cancella tutto</button>
+    </form>
+  </div>
+</body>
+</html>
