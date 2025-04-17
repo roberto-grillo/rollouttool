@@ -233,57 +233,103 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 
-  <script>
-    $(document).ready(function () {
-      const table = $('#tabella-attivita').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-          { extend: 'copy', className: 'custom-button' },
-          { extend: 'csv', className: 'custom-button' },
-          { extend: 'excel', className: 'custom-button' },
-          { extend: 'pdf', className: 'custom-button' },
-          { extend: 'print', className: 'custom-button' }
-        ],
-        language: {
-          url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
-        }
-      });
 
-      const rawData = {{ data_grafico | tojson | default('{}', true) }};
-      const labels = Object.keys(rawData).sort();
-      const verde = labels.map(date => rawData[date].OK || 0);
-      const rosso = labels.map(date => rawData[date].NOK || 0);
-      const giallo = labels.map(date => rawData[date].ALTRO || 0);
 
-      const totale = verde.reduce((a, b) => a + b, 0) + rosso.reduce((a, b) => a + b, 0) + giallo.reduce((a, b) => a + b, 0);
-      const completamento = totale ? Math.round((verde.reduce((a,b)=>a+b,0)/totale)*100) : 0;
-      document.getElementById('volume-totale').innerText = totale;
-      document.getElementById('completamento').innerText = completamento + '%';
 
-      new Chart(document.getElementById('grafico'), {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: 'OK', data: verde, backgroundColor: 'green' },
-            { label: 'NOK', data: rosso, backgroundColor: 'red' },
-            { label: 'ALTRO', data: giallo, backgroundColor: 'orange' }
-          ]
+<script>
+  $(document).ready(function () {
+    const table = $('#tabella-attivita').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        { extend: 'copy', className: 'custom-button' },
+        { extend: 'csv', className: 'custom-button' },
+        { extend: 'excel', className: 'custom-button' },
+        { extend: 'pdf', className: 'custom-button' },
+        { extend: 'print', className: 'custom-button' }
+      ],
+      language: {
+        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
+      }
+    });
+
+    const rawData = {{ data_grafico | tojson | default('{}', true) }};
+    const labels = Object.keys(rawData).sort();
+    const verde = labels.map(date => rawData[date].OK || 0);
+    const rosso = labels.map(date => rawData[date].NOK || 0);
+    const giallo = labels.map(date => rawData[date].ALTRO || 0);
+
+    const totale = verde.reduce((a, b) => a + b, 0) + rosso.reduce((a, b) => a + b, 0) + giallo.reduce((a, b) => a + b, 0);
+    const completamento = totale ? Math.round((verde.reduce((a,b)=>a+b,0)/totale)*100) : 0;
+    document.getElementById('volume-totale').innerText = totale;
+    document.getElementById('completamento').innerText = completamento + '%';
+
+    const ctx = document.getElementById('grafico').getContext('2d');
+
+    // Gradienti
+    const gradientVerde = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientVerde.addColorStop(0, '#66bb6a'); // chiaro
+    gradientVerde.addColorStop(1, '#388e3c'); // scuro
+
+    const gradientRosso = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientRosso.addColorStop(0, '#ef5350');
+    gradientRosso.addColorStop(1, '#c62828');
+
+    const gradientGiallo = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientGiallo.addColorStop(0, '#ffca28');
+    gradientGiallo.addColorStop(1, '#f57f17');
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'OK', data: verde, backgroundColor: gradientVerde },
+          { label: 'NOK', data: rosso, backgroundColor: gradientRosso },
+          { label: 'ALTRO', data: giallo, backgroundColor: gradientGiallo }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Attività per Data di Collaudo' }
+        plugins: {
+          legend: {
+            position: 'top'
           },
-          scales: {
-            x: { stacked: true },
-            y: { stacked: true, beginAtZero: true }
+          title: {
+            display: true,
+            text: 'Attività per Data di Collaudo'
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return `${context.dataset.label}: ${context.raw} attività`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
           }
         }
-      });
+      }
     });
-  </script>
+  });
+</script>
+
+
+
+  
 </body>
 </html>
