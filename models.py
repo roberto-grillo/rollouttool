@@ -3,6 +3,11 @@ from datetime import datetime
 
 db = SQLAlchemy()  # unica istanza condivisa
 
+
+def current_time_truncated():
+    return datetime.now().replace(microsecond=0)
+
+
 class Attivita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data_inserimento = db.Column(db.DateTime, default=datetime.utcnow)
@@ -40,7 +45,7 @@ class Attivita(db.Model):
     note = db.Column(db.Text)
     categoria_pending = db.Column(db.String(100))
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=current_time_truncated)
 
 
 
