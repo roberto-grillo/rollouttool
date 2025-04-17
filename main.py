@@ -12,7 +12,7 @@ from config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db.init_app(app)
 
 with app.app_context():
