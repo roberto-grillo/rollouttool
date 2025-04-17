@@ -93,6 +93,7 @@ def modifica_attivita(attivita_id):
             valore_vecchio = getattr(attivita, nome_colonna)
 
             tipo = column.type
+            valore_nuovo = None
             try:
                 if nuovo_valore == "":
                     if isinstance(tipo, (DateTime, Date, Integer, Float, Numeric, REAL)):
