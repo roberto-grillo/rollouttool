@@ -71,9 +71,9 @@
                   {{ value }}
                 {% else %}
                   {% if value is not none and value.__class__.__name__ in ["datetime", "date"] %}
-                    <input type="text" name="{{ column.name }}" value="{{ value.strftime('%Y-%m-%d %H:%M:%S') }}" style="width: 100%;" {% if column.name in ["data_inserimento", "created_at"] %}readonly{% endif %}>
+                    <input type="text" name="{{ column.name }}" value="{{ value.strftime('%Y-%m-%d %H:%M:%S') if value else '' }}" style="width: 100%;" {% if column.name in ["data_inserimento", "created_at"] %}readonly{% endif %}>
                   {% else %}
-                    <input type="text" name="{{ column.name }}" value="{{ value }}" style="width: 100%;" {% if column.name in ["data_inserimento", "created_at"] %}readonly{% endif %}>
+                    <input type="text" name="{{ column.name }}" value="{{ '' if value is none else value }}" style="width: 100%;" {% if column.name in ["data_inserimento", "created_at"] %}readonly{% endif %}>
                   {% endif %}
                 {% endif %}
               </td>
