@@ -192,8 +192,7 @@ def importa_excel():
     if file_length_mb > app.config["MAX_UPLOAD_SIZE_MB"]:
         flash(f"Il file supera il limite di {app.config['MAX_UPLOAD_SIZE_MB']} MB.")
         return redirect(url_for("elenco_attivita"))
-    
-    
+
     try:
         df = pd.read_excel(file)
 
@@ -210,21 +209,25 @@ def importa_excel():
             for col_name in df.columns:
                 if hasattr(attivita, col_name):
                     value = row[col_name]
-                    if pd.isna(value):
-                        setattr(attivita, col_name, None)
-                    else:
-                        tipo = getattr(Attivita, col_name).property.columns[0].type
-                        if isinstance(tipo, DateTime):
-                            setattr(attivita, col_name, pd.to_datetime(value).to_pydatetime())
-                        elif isinstance(tipo, Date):
-                            setattr(attivita, col_name, pd.to_datetime(value).date())
-                        elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
-                            try:
-                                setattr(attivita, col_name, float(value))
-                            except ValueError:
+                    tipo = getattr(Attivita, col_name).property.columns[0].type
+                    try:
+                        if pd.isna(value):
+                            if isinstance(tipo, (DateTime, Date, Integer, Float, Numeric, REAL)):
                                 setattr(attivita, col_name, None)
+                            else:
+                                setattr(attivita, col_name, "")
                         else:
-                            setattr(attivita, col_name, str(value))
+                            if isinstance(tipo, DateTime):
+                                dt = pd.to_datetime(value).to_pydatetime().replace(microsecond=0)
+                                setattr(attivita, col_name, dt)
+                            elif isinstance(tipo, Date):
+                                setattr(attivita, col_name, pd.to_datetime(value).date())
+                            elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
+                                setattr(attivita, col_name, float(value))
+                            else:
+                                setattr(attivita, col_name, str(value))
+                    except Exception:
+                        setattr(attivita, col_name, None)
 
             db.session.add(attivita)
 
@@ -234,6 +237,7 @@ def importa_excel():
         flash(f"Errore durante l'importazione: {e}")
 
     return redirect(url_for("elenco_attivita"))
+
 
 
 @app.route("/storico/<int:attivita_id>")
