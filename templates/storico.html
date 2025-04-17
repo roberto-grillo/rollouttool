@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Storico Modifiche</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    table {
+      margin: 0 auto;
+      background: white;
+      border-collapse: collapse;
+      width: 90%;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #2c3e50;
+      color: white;
+      text-transform: uppercase;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin: 20px 0;
+      text-decoration: none;
+      color: #2980b9;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Storico Modifiche - Attività {{ attivita_id }}</h1>
+
+  <a href="{{ url_for('dettaglio_attivita', attivita_id=attivita_id) }}" class="back-link">🔙 Torna ai dettagli attività</a>
+
+  <table id="storico-table">
+    <thead>
+      <tr>
+        <th>Campo</th>
+        <th>Valore Precedente</th>
+        <th>Valore Nuovo</th>
+        <th>Utente</th>
+        <th>Data Modifica</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in modifiche %}
+      <tr>
+        <td>{{ m.campo }}</td>
+        <td>{{ m.valore_precedente }}</td>
+        <td>{{ m.valore_nuovo }}</td>
+        <td>{{ m.utente or 'ignoto' }}</td>
+        <td>{{ m.data_modifica.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#storico-table').DataTable({
+        language: {
+          url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
+        }
+      });
+    });
+  </script>
+</body>
+</html>
