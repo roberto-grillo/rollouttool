@@ -14,9 +14,7 @@
       text-align: center;
     }
 
-    h1 {
-      color: #333;
-    }
+    h1 { color: #333; }
 
     .metrics {
       display: flex;
@@ -87,17 +85,11 @@
       text-transform: uppercase;
     }
 
-    tr:hover {
-      background-color: #f1f1f1;
-    }
+    tr:hover { background-color: #f1f1f1; }
 
-    .status-icon {
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .ok    { color: green; }
-    .nok   { color: red; }
+    .status-icon { font-size: 16px; font-weight: bold; }
+    .ok { color: green; }
+    .nok { color: red; }
     .other { color: orange; }
 
     .icon-button {
@@ -146,14 +138,13 @@
     <canvas id="grafico"></canvas>
   </div>
 
-  
   <div class="button-bar">
     <button class="custom-button" onclick="window.location.href='/impostazioni'">⚙️ Impostazioni</button>
-    <button class="custom-button" onclick="window.location.href='/mappa'">📽️ Mappa</button>
+    <button class="custom-button" onclick="window.location.href='/mappa'">🎮 Mappa</button>
     <button class="custom-button" onclick="window.location.href='/attivita/0'">➕ Nuova attività</button>
     <form id="upload-form" action="/importa_excel" method="post" enctype="multipart/form-data">
       <input type="file" name="file" accept=".xls,.xlsx">
-      <button type="submit" class="custom-button">📤 Carica Excel</button>
+      <button type="submit" class="custom-button">📄 Carica Excel</button>
     </form>
   </div>
 
@@ -219,11 +210,6 @@
     </tbody>
   </table>
 
-
-  
-  
-  
-  
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -233,11 +219,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 
-
-
-
-<script>
-  $(document).ready(function () {
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
     const table = $('#tabella-attivita').DataTable({
       dom: 'Bfrtip',
       buttons: [
@@ -247,101 +230,80 @@
         { extend: 'pdf', className: 'custom-button' },
         { extend: 'print', className: 'custom-button' }
       ],
-      language: {
-        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
-      }
+      language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json" }
     });
 
-    const rawData = {{ data_grafico | tojson | default('{}', true) }};
-    const labels = Object.keys(rawData).sort();
-    const verde = labels.map(date => rawData[date].OK || 0);
-    const rosso = labels.map(date => rawData[date].NOK || 0);
-    const giallo = labels.map(date => rawData[date].ALTRO || 0);
+    const canvas = document.getElementById('grafico');
+    const ctx = canvas.getContext('2d');
 
-    const totale = verde.reduce((a, b) => a + b, 0) + rosso.reduce((a, b) => a + b, 0) + giallo.reduce((a, b) => a + b, 0);
-    const completamento = totale ? Math.round((verde.reduce((a,b)=>a+b,0)/totale)*100) : 0;
-    document.getElementById('volume-totale').innerText = totale;
-    document.getElementById('completamento').innerText = completamento + '%';
+    setTimeout(() => {
+      const h = canvas.clientHeight || 400;
+      const gradientVerde = ctx.createLinearGradient(0, 0, 0, h);
+      gradientVerde.addColorStop(0, '#81C784'); gradientVerde.addColorStop(1, '#4CAF50');
+      const gradientRosso = ctx.createLinearGradient(0, 0, 0, h);
+      gradientRosso.addColorStop(0, '#EF5350'); gradientRosso.addColorStop(1, '#E53935');
+      const gradientGiallo = ctx.createLinearGradient(0, 0, 0, h);
+      gradientGiallo.addColorStop(0, '#FFF176'); gradientGiallo.addColorStop(1, '#FBC02D');
 
-document.addEventListener('DOMContentLoaded', function () {
-  const canvas = document.getElementById('grafico');
-  const ctx = canvas.getContext('2d');
-
-  // Imposta un'altezza fallback se canvas.height è 0
-  const gradientHeight = canvas.clientHeight || 400;
-
-  const gradientVerde = ctx.createLinearGradient(0, 0, 0, gradientHeight);
-  gradientVerde.addColorStop(0, '#81C784');
-  gradientVerde.addColorStop(1, '#4CAF50');
-
-  const gradientRosso = ctx.createLinearGradient(0, 0, 0, gradientHeight);
-  gradientRosso.addColorStop(0, '#EF5350');
-  gradientRosso.addColorStop(1, '#E53935');
-
-  const gradientGiallo = ctx.createLinearGradient(0, 0, 0, gradientHeight);
-  gradientGiallo.addColorStop(0, '#FFF176');
-  gradientGiallo.addColorStop(1, '#FBC02D');
-
-  // Plugin glow
-  Chart.register({
-    id: 'glowEffect',
-    afterDatasetsDraw(chart) {
-      const ctx = chart.ctx;
-      chart.data.datasets.forEach((dataset, i) => {
-        const meta = chart.getDatasetMeta(i);
-        if (!meta.hidden) {
-          ctx.save();
-          const glowColor = { 'OK': '#4CAF50', 'NOK': '#E53935', 'ALTRO': '#FBC02D' }[dataset.label] || 'rgba(0,0,0,0.2)';
-          ctx.shadowColor = glowColor;
-          ctx.shadowBlur = 10;
-          ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 0;
-          meta.data.forEach(bar => {
-            const { x, y, width } = bar;
-            ctx.fillStyle = glowColor;
-            ctx.fillRect(x - width / 2, y, width, chart.chartArea.bottom - y);
+      Chart.register({
+        id: 'glowEffect',
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            if (!meta.hidden) {
+              ctx.save();
+              const glow = { 'OK': '#4CAF50', 'NOK': '#E53935', 'ALTRO': '#FBC02D' }[dataset.label] || 'rgba(0,0,0,0.2)';
+              ctx.shadowColor = glow;
+              ctx.shadowBlur = 10;
+              meta.data.forEach(bar => {
+                const { x, y, width } = bar;
+                ctx.fillStyle = glow;
+                ctx.fillRect(x - width / 2, y, width, chart.chartArea.bottom - y);
+              });
+              ctx.restore();
+            }
           });
-          ctx.restore();
         }
       });
-    }
-  });
 
-  // Inizializza grafico
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'OK', data: verde, backgroundColor: gradientVerde, borderColor: '#388E3C', borderWidth: 2 },
-        { label: 'NOK', data: rosso, backgroundColor: gradientRosso, borderColor: '#B71C1C', borderWidth: 2 },
-        { label: 'ALTRO', data: giallo, backgroundColor: gradientGiallo, borderColor: '#F57F17', borderWidth: 2 }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: { duration: 1000, easing: 'easeOutQuart' },
-      plugins: {
-        legend: { position: 'top' },
-        title: { display: true, text: 'Attività per Data di Collaudo' },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.dataset.label}: ${ctx.raw} attività`
+      const rawData = {{ data_grafico | tojson | default('{}', true) }};
+      const labels = Object.keys(rawData).sort();
+      const verde = labels.map(d => rawData[d].OK || 0);
+      const rosso = labels.map(d => rawData[d].NOK || 0);
+      const giallo = labels.map(d => rawData[d].ALTRO || 0);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'OK', data: verde, backgroundColor: gradientVerde, borderColor: '#388E3C', borderWidth: 2 },
+            { label: 'NOK', data: rosso, backgroundColor: gradientRosso, borderColor: '#B71C1C', borderWidth: 2 },
+            { label: 'ALTRO', data: giallo, backgroundColor: gradientGiallo, borderColor: '#F57F17', borderWidth: 2 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 1000, easing: 'easeOutQuart' },
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Attività per Data di Collaudo' },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.dataset.label}: ${ctx.raw} attività`
+              }
+            }
+          },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
           }
         }
-      },
-      scales: {
-        x: { stacked: true },
-        y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
-      }
-    }
+      });
+    }, 100);
   });
-});
-</script>
-
-
-
-  
+  </script>
 </body>
 </html>
