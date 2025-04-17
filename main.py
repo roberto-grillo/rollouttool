@@ -92,11 +92,14 @@ def modifica_attivita(attivita_id):
             nuovo_valore = request.form[nome_colonna].strip()
             valore_vecchio = getattr(attivita, nome_colonna)
 
-            if nuovo_valore == "":
-                valore_nuovo = None
-            else:
-                tipo = column.type
-                try:
+            tipo = column.type
+            try:
+                if nuovo_valore == "":
+                    if isinstance(tipo, (DateTime, Date, Integer, Float, Numeric, REAL)):
+                        valore_nuovo = None
+                    else:
+                        valore_nuovo = ""  # stringa vuota al posto di None
+                else:
                     if isinstance(tipo, DateTime):
                         for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"):
                             try:
@@ -110,8 +113,9 @@ def modifica_attivita(attivita_id):
                         valore_nuovo = float(nuovo_valore)
                     else:
                         valore_nuovo = nuovo_valore
-                except Exception:
-                    valore_nuovo = None
+            except Exception:
+                valore_nuovo = None
+
 
             if not is_nuova and valore_nuovo != valore_vecchio:
                 storico = StoricoModifiche(
