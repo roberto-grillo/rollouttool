@@ -117,8 +117,18 @@ def modifica_attivita(attivita_id):
                                 break
                             except ValueError:
                                 continue
+                                
                     elif isinstance(tipo, Date):
-                        valore_nuovo = datetime.strptime(nuovo_valore, "%Y-%m-%d").date()
+                        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):
+                            try:
+                                valore_nuovo = datetime.strptime(nuovo_valore, fmt).date()
+                                break
+                            except ValueError:
+                                continue
+                        else:
+                            valore_nuovo = None # se nessun formato combacia
+                            
+                        
                     elif isinstance(tipo, (Integer, Float, Numeric, REAL)):
                         valore_nuovo = float(nuovo_valore)
                     else:
