@@ -278,6 +278,33 @@
     gradientGiallo.addColorStop(0, '#ffca28');
     gradientGiallo.addColorStop(1, '#f57f17');
 
+
+Chart.register({
+  id: 'glowEffect',
+  beforeDraw: chart => {
+    const ctx = chart.ctx;
+    chart.data.datasets.forEach((dataset, i) => {
+      const meta = chart.getDatasetMeta(i);
+      meta.data.forEach(bar => {
+        ctx.save();
+        ctx.shadowColor = dataset.backgroundColor;
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = dataset.backgroundColor;
+        ctx.fill(bar);
+        ctx.restore();
+      });
+    });
+  }
+});
+
+  
+
+
+
+
+  
     new Chart(ctx, {
       type: 'bar',
       data: {
