@@ -66,9 +66,9 @@
 
     .graficipiccoli-container {
       width: 20%;
-      min-width: 80px;
-      max-width: 160px;
-      height: 100px;
+      min-width: 100px;
+      max-width: 200px;
+      height: 160px;
       margin: 20px auto;
       background-color: #fff;
       border: 1px solid #ddd;
@@ -159,6 +159,13 @@
   
 <div class="metrics">
 
+<div class="metric-box">
+  <h2>{{ nodi_univoci }}</h2>
+  <p>Nodi univoci</p>
+  <small style="color: #666; font-size: 12px;">
+    Basato su: {{ colonne_univoche | join(', ') }}
+  </small>
+</div>
 
 
   
