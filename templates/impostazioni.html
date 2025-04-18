@@ -72,10 +72,13 @@
   <h1>⚙️ Impostazioni</h1>
   <p><a href="{{ url_for('elenco_attivita') }}">← Torna alla lista attività</a></p>
 
-<label>
-  <input type="checkbox" id="dark-toggle" onchange="toggleDarkMode(this.checked)">
-  🌙 Attiva modalità scura
-</label>
+<h3>🎨 Tema Interfaccia</h3>
+<p>Seleziona il tema da applicare all’interfaccia:</p>
+<select id="theme-switcher" onchange="changeTheme(this.value)">
+  <option value="light">☀️ Chiaro</option>
+  <option value="dark">🌙 Scuro</option>
+</select>
+
 
   
   <div class="danger-box">
