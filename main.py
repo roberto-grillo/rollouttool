@@ -322,7 +322,7 @@ def reset_db():
     return redirect(url_for("elenco_attivita"))
 
 
-@app.route("/salva_config", methods=["POST"])
+@app.route("/salva_colonne_univoche", methods=["POST"])
 def salva_colonne_univoche_route():
     selezionate = request.form.getlist("colonne_univoche")
     if len(selezionate) <= 3:
@@ -331,6 +331,7 @@ def salva_colonne_univoche_route():
     else:
         flash("Errore: puoi selezionarne al massimo 3.")
     return redirect(url_for("impostazioni"))
+
 
 
 
