@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Rollout Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #4a90e2, #0072ff);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .login-container h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .login-container p {
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+    .login-btn {
+      background-color: #ffffff;
+      color: #0072ff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .login-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .login-btn img {
+      height: 20px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>Benvenuto nel Rollout Tool</h1>
+    <p>Accedi con il tuo account Microsoft per continuare.</p>
+    <a href="/login" class="login-btn">
+      <img src="https://img.icons8.com/color/48/000000/microsoft.png" alt="Microsoft Icon">
+      Login con Microsoft
+    </a>
+  </div>
+</body>
+</html>
