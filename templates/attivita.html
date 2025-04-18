@@ -208,7 +208,7 @@
         </tr>
       {% endfor %}
     </tbody>
- </table>
+  </table>
 
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -236,42 +236,19 @@
 
     const canvas = document.getElementById('grafico');
     const ctx = canvas.getContext('2d');
-
     const rawData = {{ data_grafico | tojson | default('{}', true) }};
     const labels = Object.keys(rawData).sort();
-    const verde = labels.map(d => rawData[d].OK || 0);
-    const rosso = labels.map(d => rawData[d].NOK || 0);
-    const giallo = labels.map(d => rawData[d].ALTRO || 0);
+    const verde = labels.map(d => rawData[d]['OK'] || 0);
+    const rosso = labels.map(d => rawData[d]['NOK'] || 0);
+    const giallo = labels.map(d => rawData[d]['ALTRO'] || 0);
 
-    const h = canvas.height;
+    const h = canvas.clientHeight || 400;
     const gradientVerde = ctx.createLinearGradient(0, 0, 0, h);
     gradientVerde.addColorStop(0, '#81C784'); gradientVerde.addColorStop(1, '#4CAF50');
     const gradientRosso = ctx.createLinearGradient(0, 0, 0, h);
     gradientRosso.addColorStop(0, '#EF5350'); gradientRosso.addColorStop(1, '#E53935');
     const gradientGiallo = ctx.createLinearGradient(0, 0, 0, h);
     gradientGiallo.addColorStop(0, '#FFF176'); gradientGiallo.addColorStop(1, '#FBC02D');
-
-    Chart.register({
-      id: 'glowEffect',
-      afterDatasetsDraw(chart) {
-        const ctx = chart.ctx;
-        chart.data.datasets.forEach((dataset, i) => {
-          const meta = chart.getDatasetMeta(i);
-          if (!meta.hidden) {
-            ctx.save();
-            const glow = { 'OK': '#4CAF50', 'NOK': '#E53935', 'ALTRO': '#FBC02D' }[dataset.label] || 'rgba(0,0,0,0.2)';
-            ctx.shadowColor = glow;
-            ctx.shadowBlur = 10;
-            meta.data.forEach(bar => {
-              const { x, y, width } = bar;
-              ctx.fillStyle = glow;
-              ctx.fillRect(x - width / 2, y, width, chart.chartArea.bottom - y);
-            });
-            ctx.restore();
-          }
-        });
-      }
-    });
 
     const totale = verde.reduce((a, b) => a + b, 0) + rosso.reduce((a, b) => a + b, 0) + giallo.reduce((a, b) => a + b, 0);
     const completamento = totale ? Math.round((verde.reduce((a,b)=>a+b,0)/totale)*100) : 0;
@@ -311,4 +288,3 @@
   </script>
 </body>
 </html>
-
