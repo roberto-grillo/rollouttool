@@ -28,3 +28,11 @@ th {
   background-color: var(--box-border);
   color: var(--text-color);
 }
+
+
+#theme-switcher {
+  margin-top: 10px;
+  font-size: 16px;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
