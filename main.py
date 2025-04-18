@@ -24,6 +24,13 @@ print("🖥️ Locale:", os.uname().nodename if hasattr(os, "uname") else "n/a")
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db.init_app(app)
 
+@app.before_request
+def require_login_globale():
+    allowed_routes = ['index', 'login', 'callback', 'static']  # pagine libere
+    if 'user' not in session and request.endpoint not in allowed_routes:
+        return redirect(url_for('index'))
+
+
 with app.app_context():
     db.create_all()
 
