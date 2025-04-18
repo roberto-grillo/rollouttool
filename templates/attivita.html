@@ -144,10 +144,11 @@
   <a class="logout" href="/logout">🔓 Logout</a>
   <h1>Lista Attività</h1>
 
-<div class="metrics">
-  <canvas id="graficoStato" width="300" height="200"></canvas>
+
+
   
 <div class="metrics">
+    <canvas id="graficoStato" width="300" height="200"></canvas>
   <div class="metric-box">
     <h2 id="volume-totale">0</h2>
     <p>Volumi</p>
@@ -336,7 +337,6 @@
   </script>
 
   <!-- Mini grafico a barre per stato -->
-<canvas id="graficoStato" width="300" height="200"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctxStato = document.getElementById('graficoStato').getContext('2d');
