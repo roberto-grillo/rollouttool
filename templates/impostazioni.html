@@ -37,6 +37,19 @@
   <h1>⚙️ Impostazioni</h1>
   <p><a href="{{ url_for('elenco_attivita') }}">← Torna alla lista attività</a></p>
 
+
+<form id="form-colonne-univoche" method="POST" action="/salva_colonne_univoche">
+  <select name="colonne_univoche" multiple size="8" onchange="limitaSelezione(this)">
+    {% for col in colonne %}
+      <option value="{{ col }}" {% if col in selezionate %}selected{% endif %}>{{ col.replace('_', ' ').upper() }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <button type="submit">💾 Salva</button>
+</form>
+
+
+  
   <div class="danger-box">
     <h2>⚠️ Cancellazione totale del database</h2>
     <p>Questa azione eliminerà tutte le righe della tabella <strong>attività</strong> e dello <strong>storico modifiche</strong>.</p>
