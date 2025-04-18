@@ -307,7 +307,10 @@ def storico_modifiche(attivita_id):
 
 @app.route("/impostazioni")
 def impostazioni():
-    return render_template("impostazioni.html")
+    colonne_disponibili = [col.name for col in Attivita.__table__.columns if col.name not in ('id', 'data_inserimento')]
+    selezionate = carica_colonne_univoche()
+    return render_template("impostazioni.html", colonne=colonne_disponibili, selezionate=selezionate)
+
 
 @app.route("/reset_db", methods=["POST"])
 def reset_db():
@@ -319,6 +322,15 @@ def reset_db():
     return redirect(url_for("elenco_attivita"))
 
 
+@app.route("/salva_config", methods=["POST"])
+def salva_colonne_univoche_route():
+    selezionate = request.form.getlist("colonne_univoche")
+    if len(selezionate) <= 3:
+        salva_colonne_univoche(selezionate)
+        flash("Colonne univoche salvate correttamente.")
+    else:
+        flash("Errore: puoi selezionarne al massimo 3.")
+    return redirect(url_for("impostazioni"))
 
 
 
