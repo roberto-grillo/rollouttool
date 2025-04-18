@@ -159,23 +159,7 @@
   
 <div class="metrics">
 
-<div class="metric-box">
-  <h2>{{ nodi_univoci }}</h2>
-  <p>Nodi</p>
-  <small style="color: #666; font-size: 12px;">
-    Basato su: {{ colonne_univoche | join(', ') }}
-  </small>
-</div>
-
-<div class="metric-box">
-  <h2>{{ ok_distinti }}</h2>
-  <p>OK su nodi univoci</p>
-  <small style="color: #666; font-size: 12px;">
-    Solo l’ultimo esito per nodo
-  </small>
-</div>
-
-  
+ 
   <div class="metric-box">
     <h2 id="volume-totale">0</h2>
     <p>Volumi</p>
@@ -200,6 +184,25 @@
   </div>
 </div>
 
+<div class="metrics">
+<div class="metric-box">
+  <h2>{{ nodi_univoci }}</h2>
+  <p>Nodi</p>
+  <small style="color: #666; font-size: 12px;">
+    Basato su: {{ colonne_univoche | join(', ') }}
+  </small>
+</div>
+
+<div class="metric-box">
+  <h2>{{ ok_distinti }}</h2>
+  <p>OK su nodi univoci</p>
+  <small style="color: #666; font-size: 12px;">
+    Solo l’ultimo esito per nodo
+  </small>
+</div>
+</div>
+
+  
   <div class="graficipiccoli-container">
     <canvas id="graficoStato"></canvas>
   </div>
