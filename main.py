@@ -94,10 +94,32 @@ def logout():
     session.clear()
     return redirect("/")
 
+
+
+
+
+
+
 @app.route("/attivita")
 def elenco_attivita():
     attivita = Attivita.query.all()
-    return render_template("attivita.html", attivita=attivita)
+    colonne_univoche = carica_colonne_univoche()
+
+    # Calcolo dei nodi univoci
+    combinazioni = set()
+    for att in attivita:
+        chiave = tuple(getattr(att, col) for col in colonne_univoche)
+        combinazioni.add(chiave)
+    nodi_univoci = len(combinazioni)
+
+    return render_template("attivita.html", attivita=attivita, nodi_univoci=nodi_univoci, colonne_univoche=colonne_univoche)
+
+
+
+
+
+
+
 
 @app.route("/attivita/0")
 def nuova_attivita():
