@@ -43,6 +43,26 @@
 
     label { font-weight: bold; display: block; margin-bottom: 10px; }
   </style>
+
+<script>
+  // Cambia il tema e salva in localStorage
+  function changeTheme(theme) {
+    document.body.classList.remove("light-theme", "dark-theme");
+    document.body.classList.add(theme + "-theme");
+    localStorage.setItem("user-theme", theme);
+  }
+
+  // Applica il tema al caricamento della pagina
+  document.addEventListener("DOMContentLoaded", function () {
+    const savedTheme = localStorage.getItem("user-theme") || "light";
+    document.body.classList.add(savedTheme + "-theme");
+
+    const selector = document.getElementById("theme-switcher");
+    if (selector) selector.value = savedTheme;
+  });
+</script>
+
+  
   <script>
     function confermaReset() {
       if (confirm("⚠ Sei sicuro di voler cancellare tutte le righe della tabella attività?")) {
