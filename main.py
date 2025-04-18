@@ -10,6 +10,33 @@ from models import db, Attivita  # importa db centralizzato
 from config import Config
 
 
+
+
+
+import json
+
+CONFIG_FILE = "config.json"
+
+def carica_colonne_univoche():
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            data = json.load(f)
+            return data.get("colonne_univoche", [])
+    except FileNotFoundError:
+        return []
+
+def salva_colonne_univoche(colonne):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump({"colonne_univoche": colonne}, f)
+
+
+
+
+
+
+
+
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
