@@ -301,7 +301,33 @@
 
     document.getElementById('ok-count').innerText = okTot;
     document.getElementById('nok-count').innerText = nokTot;
-    document.getElementById('noncompletati-count').innerText = altroTot;
+document.getElementById('noncompletati-count').innerText = altroTot;
+
+// Mini grafico a barre per stato
+const ctxStato = document.getElementById('graficoStato').getContext('2d');
+new Chart(ctxStato, {
+  type: 'bar',
+  data: {
+    labels: ['OK', 'NOK', 'Non completato'],
+    datasets: [{
+      label: 'Stato attività',
+      data: [okTot, nokTot, altroTot],
+      backgroundColor: ['#81C784', '#EF5350', '#FBC02D'],
+      borderColor: ['#388E3C', '#B71C1C', '#F57F17'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { precision: 0 }
+      }
+    }
+  }
+});
+
 
 
     new Chart(ctx, {
@@ -336,32 +362,6 @@
   });
   </script>
 
-  <!-- Mini grafico a barre per stato -->
-<script>
-  const ctxStato = document.getElementById('graficoStato').getContext('2d');
-  new Chart(ctxStato, {
-    type: 'bar',
-    data: {
-      labels: ['OK', 'NOK', 'Non completato'],
-      datasets: [{
-        label: 'Stato attività',
-        data: [okTot, nokTot, altroTot],
-        backgroundColor: ['#81C784', '#EF5350', '#FBC02D'],
-        borderColor: ['#388E3C', '#B71C1C', '#F57F17'],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { precision: 0 }
-        }
-      }
-    }
-  });
-</script>
 
 
   
