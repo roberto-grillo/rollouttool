@@ -39,15 +39,15 @@ def index():
 
 @app.route("/login")
 def login():
-    oauth = OAuth2Session(CLIENT_ID, scope=SCOPE, redirect_uri=REDIRECT_URI)
-    authorization_url, state = oauth.authorization_url(AUTH_URL)
+    oauth = OAuth2Session(Config.CLIENT_ID, scope=Config.SCOPE, redirect_uri=Config.REDIRECT_URI)
+    authorization_url, state = oauth.authorization_url(Config.AUTH_URL)
     session["oauth_state"] = state
     return redirect(authorization_url)
 
 @app.route("/auth/callback")
 def callback():
-    oauth = OAuth2Session(CLIENT_ID, scope=SCOPE, redirect_uri=REDIRECT_URI)
-    token = oauth.fetch_token(TOKEN_URL, client_secret=CLIENT_SECRET, authorization_response=request.url)
+    oauth = OAuth2Session(Config.CLIENT_ID, scope=Config.SCOPE, redirect_uri=Config.REDIRECT_URI)
+    token = oauth.fetch_token(Config.TOKEN_URL, client_secret=Config.CLIENT_SECRET, authorization_response=request.url)
     userinfo = oauth.get("https://graph.microsoft.com/v1.0/me").json()
     session["user"] = {
         "name": userinfo.get("displayName", "Sconosciuto"),
