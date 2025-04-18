@@ -148,7 +148,7 @@
 
   
 <div class="metrics">
-    <canvas id="graficoStato" width="300" height="200"></canvas>
+    <canvas id="graficoStato" width="60" height="40"></canvas>
   <div class="metric-box">
     <h2 id="volume-totale">0</h2>
     <p>Volumi</p>
@@ -337,7 +337,6 @@
   </script>
 
   <!-- Mini grafico a barre per stato -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctxStato = document.getElementById('graficoStato').getContext('2d');
   new Chart(ctxStato, {
@@ -346,11 +345,7 @@
       labels: ['OK', 'NOK', 'Non completato'],
       datasets: [{
         label: 'Stato attività',
-        data: [
-          {{ verde | sum }},
-          {{ rosso | sum }},
-          {{ giallo | sum }}
-        ],
+        data: [okTot, nokTot, altroTot],
         backgroundColor: ['#81C784', '#EF5350', '#FBC02D'],
         borderColor: ['#388E3C', '#B71C1C', '#F57F17'],
         borderWidth: 1
@@ -367,6 +362,7 @@
     }
   });
 </script>
+
 
   
 </body>
