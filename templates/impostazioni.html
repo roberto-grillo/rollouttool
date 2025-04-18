@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <title>Impostazioni</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background-color: #1e1e1e;
+      color: #f1f1f1;
+    }
+
     .danger-box {
       background-color: #fff3f3;
       border: 2px solid #ff4c4c;
@@ -12,7 +22,14 @@
       border-radius: 8px;
       margin-top: 30px;
     }
+
+    .dark-mode .danger-box {
+      background-color: #3b1f1f;
+      border-color: #ff8888;
+    }
+
     .danger-box h2 { color: #cc0000; }
+
     button {
       background-color: #ff4c4c;
       color: white;
@@ -22,6 +39,8 @@
       cursor: pointer;
       font-size: 16px;
     }
+
+    label { font-weight: bold; display: block; margin-bottom: 10px; }
   </style>
   <script>
     function confermaReset() {
@@ -31,12 +50,33 @@
         }
       }
     }
+
+    function toggleDarkMode(checked) {
+      const mode = checked ? 'dark' : 'light';
+      localStorage.setItem('theme', mode);
+      document.body.classList.toggle('dark-mode', checked);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const current = localStorage.getItem('theme');
+      if (current === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('dark-toggle').checked = true;
+      }
+    });
   </script>
 </head>
+
 <body>
   <h1>⚙️ Impostazioni</h1>
   <p><a href="{{ url_for('elenco_attivita') }}">← Torna alla lista attività</a></p>
 
+<label>
+  <input type="checkbox" id="dark-toggle" onchange="toggleDarkMode(this.checked)">
+  🌙 Attiva modalità scura
+</label>
+
+  
   <div class="danger-box">
     <h2>⚠️ Cancellazione totale del database</h2>
     <p>Questa azione eliminerà tutte le righe della tabella <strong>attività</strong> e dello <strong>storico modifiche</strong>.</p>
