@@ -33,8 +33,9 @@ oauth = OAuth2Session(Config.CLIENT_ID, scope=Config.SCOPE, redirect_uri=Config.
 @app.route("/")
 def index():
     if "user" in session:
-        return f"<h3>Sei loggato come: {session['user']['name']} ({session['user']['email']})</h3><a href='/attivita'>Vai alla lista</a><br><a href='/logout'>Logout</a>"
-    return "<a href='/login'>Login con Microsoft</a>"
+        return redirect(url_for("elenco_attivita"))
+    return render_template("login.html")
+
 
 @app.route("/login")
 def login():
