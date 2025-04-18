@@ -350,6 +350,10 @@ new Chart(ctxStato, {
     }]
   },
   options: {
+    responsive: true,
+    layout: {
+      padding: { top: 0, bottom: 0, left: 0, right: 0 }
+    },
     plugins: { legend: { display: false } },
     scales: {
       y: {
@@ -359,6 +363,7 @@ new Chart(ctxStato, {
     }
   }
 });
+
 
 
 
