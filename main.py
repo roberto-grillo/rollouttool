@@ -112,8 +112,30 @@ def elenco_attivita():
         combinazioni.add(chiave)
     nodi_univoci = len(combinazioni)
 
-    return render_template("attivita.html", attivita=attivita, nodi_univoci=nodi_univoci, colonne_univoche=colonne_univoche)
+    # Raggruppamento per chiave univoca
+    from collections import defaultdict
+    mappa_attivita_recenti = defaultdict(list)
 
+    for att in attivita:
+        chiave = tuple(getattr(att, col) for col in colonne_univoche)
+        mappa_attivita_recenti[chiave].append(att)
+
+    # Seleziona l'attività più recente per ogni chiave
+    attivita_finali = []
+    for gruppo in mappa_attivita_recenti.values():
+        più_recente = max(gruppo, key=lambda x: x.data_inserimento or datetime.min)
+        attivita_finali.append(più_recente)
+
+    # Conteggio degli OK distinti tra le attività più recenti
+    ok_distinti = sum(1 for att in attivita_finali if att.esito_collaudo == "OK")
+
+    return render_template(
+        "attivita.html",
+        attivita=attivita,
+        nodi_univoci=nodi_univoci,
+        colonne_univoche=colonne_univoche,
+        ok_distinti=ok_distinti
+    )
 
 
 
